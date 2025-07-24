@@ -13,13 +13,15 @@ const Projects = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const backendURL = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     const getProjects = async () => {
       try {
         const response = await fetchProjects();
-        const data = response.data || response; // ✅ Ensure fallback
+        const data = response.data || response;
         setProjects(Array.isArray(data) ? data : []);
-        console.log("Fetched Projects:", data); // ✅ Debug log
+        console.log("Fetched Projects:", data);
       } catch (error) {
         console.error('Error fetching projects:', error);
         setProjects([]);
@@ -67,7 +69,7 @@ const Projects = () => {
               description={project.description}
               image={
                 project.thumbnail
-                  ? `http://localhost:5000/uploads/${project.thumbnail}`
+                  ? `${backendURL}/uploads/${project.thumbnail}`
                   : '/default-project.jpg'
               }
               githubLink={project.githubLink}

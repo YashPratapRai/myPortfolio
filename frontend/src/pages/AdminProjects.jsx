@@ -1,4 +1,3 @@
-// --- No changes here ---
 import React, { useState, useEffect } from 'react';
 import {
   Container,
@@ -16,6 +15,8 @@ import {
   Divider
 } from '@mui/material';
 import axios from 'axios';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const AdminProjects = () => {
   const [form, setForm] = useState({
@@ -39,10 +40,10 @@ const AdminProjects = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const projectsRes = await axios.get('http://localhost:5000/api/projects');
+        const projectsRes = await axios.get(`${BACKEND_URL}/api/projects`);
         setProjects(projectsRes.data);
 
-        setProfilePreview('http://localhost:5000/api/profile/image');
+        setProfilePreview(`${BACKEND_URL}/api/profile/image`);
       } catch (err) {
         console.error('Error fetching data:', err);
       }
@@ -91,11 +92,11 @@ const AdminProjects = () => {
       );
 
       if (selectedId) {
-        await axios.put(`http://localhost:5000/api/projects/${selectedId}`, formData, {
+        await axios.put(`${BACKEND_URL}/api/projects/${selectedId}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       } else {
-        await axios.post('http://localhost:5000/api/projects', formData, {
+        await axios.post(`${BACKEND_URL}/api/projects`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
@@ -112,7 +113,7 @@ const AdminProjects = () => {
       setPreview(null);
       setSelectedId('');
 
-      const res = await axios.get('http://localhost:5000/api/projects');
+      const res = await axios.get(`${BACKEND_URL}/api/projects`);
       setProjects(res.data);
     } catch (err) {
       alert('Failed to submit. Check console.');
@@ -120,16 +121,15 @@ const AdminProjects = () => {
     }
   };
 
-  // 🔧 FIXED: Use correct API endpoint
   const handleProfileSubmit = async () => {
     try {
       const formData = new FormData();
-      formData.append('picture', profileImage); // 🔧 field name must match backend's multer field: 'picture'
+      formData.append('picture', profileImage);
 
-      await axios.post('http://localhost:5000/api/profile/picture', formData, {
+      await axios.post(`${BACKEND_URL}/api/profile/picture`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-       setProfilePreview('http://localhost:5000/api/profile/image');
+      setProfilePreview(`${BACKEND_URL}/api/profile/image`);
       setProfileSuccess(true);
     } catch (err) {
       alert('Failed to upload profile image');

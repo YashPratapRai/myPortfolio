@@ -24,6 +24,8 @@ import FunctionsIcon from '@mui/icons-material/Functions';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import DeveloperModeIcon from '@mui/icons-material/DeveloperMode';
 
+const backendURL = import.meta.env.VITE_BACKEND_URL;
+
 const Home = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,9 +50,9 @@ const Home = () => {
   useEffect(() => {
     const fetchProfileImage = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/profile/image');
+        const res = await axios.get(`${backendURL}/api/profile/image`);
         if (res.data?.imageUrl) {
-          setProfileImage(`http://localhost:5000${res.data.imageUrl}?ts=${Date.now()}`);
+          setProfileImage(`${backendURL}${res.data.imageUrl}?ts=${Date.now()}`);
         }
       } catch (error) {
         console.error('Failed to load profile image:', error);
@@ -166,7 +168,7 @@ const Home = () => {
                         description={(project.description || '').substring(0, 100)}
                         image={
                           project.thumbnail
-                            ? `http://localhost:5000/uploads/${project.thumbnail}`
+                            ? `${backendURL}/uploads/${project.thumbnail}`
                             : '/profile_enrique.png'
                         }
                         githubLink={project.githubLink}
@@ -200,94 +202,92 @@ const Home = () => {
       </Box>
 
       {/* My Skills Section */}
-      {/* My Skills Section */}
-<Box
-id='skills'
-  sx={{
-    py: 8,
-    background: 'linear-gradient(135deg, #1e3c72, #2a5298)',
-    color: '#fff',
-  }}
->
-  <Container maxWidth="lg">
-    <Typography
-      variant="h4"
-      gutterBottom
-      sx={{ fontWeight: 'bold', textAlign: 'center', mb: 4 }}
-    >
-      My Skills
-    </Typography>
-
-    <Grid container spacing={3} justifyContent="center">
-      {[
-        {
-          name: 'C++',
-          icon: (
-            <Box
-              component="img"
-              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg"
-              alt="C++ icon"
-              sx={{ width: 30, height: 30 }}
-            />
-          ),
-        },
-        {
-          name: 'C',
-          icon: (
-            <Box
-              component="img"
-              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg"
-              alt="C icon"
-              sx={{ width: 30, height: 30 }}
-            />
-          ),
-        },
-        { name: 'Java', icon: <IntegrationInstructionsIcon fontSize="large" /> },
-        { name: 'Python', icon: <DataObjectIcon fontSize="large" /> },
-        { name: 'MERN Stack', icon: <DeveloperModeIcon fontSize="large" /> },
-        { name: 'NumPy', icon: <FunctionsIcon fontSize="large" /> },
-        { name: 'Pandas', icon: <TableChartIcon fontSize="large" /> },
-        { name: 'Matplotlib', icon: <BarChartIcon fontSize="large" /> },
-        { name: 'Excel', icon: <StorageIcon fontSize="large" /> },
-        { name: 'Tableau', icon: <InsightsIcon fontSize="large" /> },
-      ].map((skill, index) => (
-        <Grid item key={index}>
-          <motion.div
-            whileHover={{ scale: 1.08, rotate: 1 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 250 }}
+      <Box
+        id='skills'
+        sx={{
+          py: 8,
+          background: 'linear-gradient(135deg, #1e3c72, #2a5298)',
+          color: '#fff',
+        }}
+      >
+        <Container maxWidth="lg">
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{ fontWeight: 'bold', textAlign: 'center', mb: 4 }}
           >
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                px: 3,
-                py: 2,
-                borderRadius: 3,
-                background: '#2a3eb1',
-                color: '#fff',
-                fontWeight: 'bold',
-                minWidth: 120,
-                boxShadow: 4,
-                cursor: 'pointer',
-                transition: '0.3s ease-in-out',
-                '&:hover': {
-                  background: '#3f51b5',
-                  boxShadow: 6,
-                },
-              }}
-            >
-              <Box sx={{ mb: 1 }}>{skill.icon}</Box>
-              <Typography variant="body1">{skill.name}</Typography>
-            </Box>
-          </motion.div>
-        </Grid>
-      ))}
-    </Grid>
-  </Container>
-</Box>
+            My Skills
+          </Typography>
 
+          <Grid container spacing={3} justifyContent="center">
+            {[
+              {
+                name: 'C++',
+                icon: (
+                  <Box
+                    component="img"
+                    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg"
+                    alt="C++ icon"
+                    sx={{ width: 30, height: 30 }}
+                  />
+                ),
+              },
+              {
+                name: 'C',
+                icon: (
+                  <Box
+                    component="img"
+                    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg"
+                    alt="C icon"
+                    sx={{ width: 30, height: 30 }}
+                  />
+                ),
+              },
+              { name: 'Java', icon: <IntegrationInstructionsIcon fontSize="large" /> },
+              { name: 'Python', icon: <DataObjectIcon fontSize="large" /> },
+              { name: 'MERN Stack', icon: <DeveloperModeIcon fontSize="large" /> },
+              { name: 'NumPy', icon: <FunctionsIcon fontSize="large" /> },
+              { name: 'Pandas', icon: <TableChartIcon fontSize="large" /> },
+              { name: 'Matplotlib', icon: <BarChartIcon fontSize="large" /> },
+              { name: 'Excel', icon: <StorageIcon fontSize="large" /> },
+              { name: 'Tableau', icon: <InsightsIcon fontSize="large" /> },
+            ].map((skill, index) => (
+              <Grid item key={index}>
+                <motion.div
+                  whileHover={{ scale: 1.08, rotate: 1 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 250 }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      px: 3,
+                      py: 2,
+                      borderRadius: 3,
+                      background: '#2a3eb1',
+                      color: '#fff',
+                      fontWeight: 'bold',
+                      minWidth: 120,
+                      boxShadow: 4,
+                      cursor: 'pointer',
+                      transition: '0.3s ease-in-out',
+                      '&:hover': {
+                        background: '#3f51b5',
+                        boxShadow: 6,
+                      },
+                    }}
+                  >
+                    <Box sx={{ mb: 1 }}>{skill.icon}</Box>
+                    <Typography variant="body1">{skill.name}</Typography>
+                  </Box>
+                </motion.div>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
     </>
   );
 };

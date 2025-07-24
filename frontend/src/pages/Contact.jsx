@@ -39,7 +39,11 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/contact/send', formData);
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/contact/send`,
+        formData
+      );
+
       if (res.status === 201) {
         setSnackbar({
           open: true,
@@ -215,7 +219,10 @@ const Contact = () => {
                   Send Message
                 </Button>
 
-                <Typography variant="body2" sx={{ mt: 2, color: '#ccc' }}>
+                <Typography
+                  variant="body2"
+                  sx={{ mt: 2, color: '#ccc' }}
+                >
                   I'll get back to you shortly.
                 </Typography>
               </Box>
@@ -228,7 +235,7 @@ const Contact = () => {
             sx={{ mt: 4, color: '#ddd', fontStyle: 'italic' }}
           >
             Looking to bring your project idea to life and get it live on the web?
-I’d love to help! Feel free to reach out to me on any platform — let’s build something amazing together.
+            I’d love to help! Feel free to reach out to me on any platform — let’s build something amazing together.
           </Typography>
         </motion.div>
       </Container>
