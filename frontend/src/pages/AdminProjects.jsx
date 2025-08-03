@@ -38,18 +38,21 @@ const AdminProjects = () => {
   const [profileSuccess, setProfileSuccess] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const projectsRes = await axios.get(`${BACKEND_URL}/api/projects`);
-        setProjects(projectsRes.data);
+  const fetchData = async () => {
+    try {
+      const projectsRes = await axios.get(`${BACKEND_URL}/api/projects`);
+      setProjects(projectsRes.data);
 
-        setProfilePreview(`${BACKEND_URL}/api/profile/image`);
-      } catch (err) {
-        console.error('Error fetching data:', err);
-      }
-    };
-    fetchData();
-  }, []);
+      const profileRes = await axios.get(`${BACKEND_URL}/api/profile/image`);
+      const fullProfileImageUrl = `${BACKEND_URL}${profileRes.data.imageUrl}`;
+      setProfilePreview(fullProfileImageUrl);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+    }
+  };
+  fetchData();
+}, []);
+
 
   const handleSelectChange = (e) => {
     const id = e.target.value;
@@ -122,20 +125,26 @@ const AdminProjects = () => {
   };
 
   const handleProfileSubmit = async () => {
-    try {
-      const formData = new FormData();
-      formData.append('picture', profileImage);
+  try {
+    const formData = new FormData();
+    formData.append('picture', profileImage);
 
-      await axios.post(`${BACKEND_URL}/api/profile/picture`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setProfilePreview(`${BACKEND_URL}/api/profile/image`);
-      setProfileSuccess(true);
-    } catch (err) {
-      alert('Failed to upload profile image');
-      console.error(err);
-    }
-  };
+    await axios.post(`${BACKEND_URL}/api/profile/picture`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    // 🔁 Refresh with latest image
+    const res = await axios.get(`${BACKEND_URL}/api/profile/image`);
+    const fullUrl = `${BACKEND_URL}${res.data.imageUrl}?ts=${Date.now()}`; // cache bust
+    setProfilePreview(fullUrl);
+
+    setProfileSuccess(true);
+  } catch (err) {
+    alert('Failed to upload profile image');
+    console.error(err);
+  }
+};
+
 
   const handleProfileChange = (e) => {
     const file = e.target.files[0];

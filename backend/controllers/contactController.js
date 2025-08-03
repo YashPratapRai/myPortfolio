@@ -43,3 +43,4 @@ ${message}
     res.status(500).json({ msg: 'Server error while sending message.' });
   }
 };
+
