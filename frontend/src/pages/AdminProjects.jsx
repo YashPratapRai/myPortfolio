@@ -33,26 +33,17 @@ const AdminProjects = () => {
   const [success, setSuccess] = useState(false);
   const [preview, setPreview] = useState(null);
 
-  const [profileImage, setProfileImage] = useState(null);
-  const [profilePreview, setProfilePreview] = useState(null);
-  const [profileSuccess, setProfileSuccess] = useState(false);
-
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const projectsRes = await axios.get(`${BACKEND_URL}/api/projects`);
-      setProjects(projectsRes.data);
-
-      const profileRes = await axios.get(`${BACKEND_URL}/api/profile/image`);
-      const fullProfileImageUrl = `${BACKEND_URL}${profileRes.data.imageUrl}`;
-      setProfilePreview(fullProfileImageUrl);
-    } catch (err) {
-      console.error('Error fetching data:', err);
-    }
-  };
-  fetchData();
-}, []);
-
+    const fetchData = async () => {
+      try {
+        const projectsRes = await axios.get(`${BACKEND_URL}/api/projects`);
+        setProjects(projectsRes.data);
+      } catch (err) {
+        console.error('Error fetching projects:', err);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleSelectChange = (e) => {
     const id = e.target.value;
@@ -122,34 +113,6 @@ const AdminProjects = () => {
       alert('Failed to submit. Check console.');
       console.error(err);
     }
-  };
-
-  const handleProfileSubmit = async () => {
-  try {
-    const formData = new FormData();
-    formData.append('picture', profileImage);
-
-    await axios.post(`${BACKEND_URL}/api/profile/picture`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-
-    // 🔁 Refresh with latest image
-    const res = await axios.get(`${BACKEND_URL}/api/profile/image`);
-    const fullUrl = `${BACKEND_URL}${res.data.imageUrl}?ts=${Date.now()}`; // cache bust
-    setProfilePreview(fullUrl);
-
-    setProfileSuccess(true);
-  } catch (err) {
-    alert('Failed to upload profile image');
-    console.error(err);
-  }
-};
-
-
-  const handleProfileChange = (e) => {
-    const file = e.target.files[0];
-    setProfileImage(file);
-    if (file) setProfilePreview(URL.createObjectURL(file));
   };
 
   return (
@@ -224,37 +187,20 @@ const AdminProjects = () => {
         <Divider sx={{ my: 4, bgcolor: 'white' }} />
 
         <Typography variant="h5" fontWeight="bold" align="center" gutterBottom>
-          Edit Profile Image
+          Static Profile Image
         </Typography>
 
-        <Button variant="outlined" component="label" sx={{ mb: 2, color: '#fff', borderColor: '#fff', '&:hover': { backgroundColor: '#ffffff33' } }}>
-          Upload Profile Image
-          <input type="file" hidden accept="image/*" onChange={handleProfileChange} />
-        </Button>
-
-        {profilePreview && (
-          <Box sx={{ mt: 2, mb: 2, display: 'flex', justifyContent: 'center' }}>
-            <img src={profilePreview} alt="Profile Preview" style={{ maxWidth: '100%', maxHeight: 200, borderRadius: '50%', border: '3px solid white' }} />
-          </Box>
-        )}
-
-        <Button variant="contained" fullWidth onClick={handleProfileSubmit}
-          sx={{
-            background: '#92fe9d',
-            color: '#000',
-            fontWeight: 'bold',
-            '&:hover': { background: '#38ef7d' },
-          }}>
-          Update Profile Image
-        </Button>
+        <Box sx={{ mt: 2, mb: 2, display: 'flex', justifyContent: 'center' }}>
+          <img
+            src="/yash cv.jpg"
+            alt="Profile"
+            style={{ maxWidth: '100%', maxHeight: 200, borderRadius: '50%', border: '3px solid white' }}
+          />
+        </Box>
       </Paper>
 
       <Snackbar open={success} autoHideDuration={3000} onClose={() => setSuccess(false)}>
         <Alert severity="success">{selectedId ? 'Project updated' : 'Project added'} successfully!</Alert>
-      </Snackbar>
-
-      <Snackbar open={profileSuccess} autoHideDuration={3000} onClose={() => setProfileSuccess(false)}>
-        <Alert severity="success">Profile image updated successfully!</Alert>
       </Snackbar>
     </Container>
   );

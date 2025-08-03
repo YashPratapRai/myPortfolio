@@ -1,34 +1,64 @@
 // controllers/profileController.js
 import User from '../models/User.js';
+import path from 'path';
+import fs from 'fs';
 
 export const uploadProfilePicture = async (req, res) => {
   try {
-    const filename = req.file.filename;
-
-    let user = await User.findOne();
-    if (!user) {
-      user = new User({ profileImage: filename });
-    } else {
-      user.profileImage = filename;
+    if (!req.file) {
+      return res.status(400).json({
+        message: 'No file uploaded or file too large',
+        details: req.file
+      });
     }
 
-    await user.save();
+    const filename = req.file.filename;
 
-    res.status(200).json({ message: 'Profile image uploaded successfully', image: filename });
+    // Save image filename to user profile (mock example: use real user ID in real app)
+    await User.findOneAndUpdate({}, { profileImage: filename });
+
+    res.status(200).json({
+      success: true,
+      message: 'Image uploaded successfully',
+      filename
+    });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error uploading image', error: error.message });
+    console.error('Upload error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during image upload',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
 export const getProfilePicture = async (req, res) => {
   try {
-    const user = await User.findOne();
+    const user = await User.findOne().select('profileImage');
+
     if (!user || !user.profileImage) {
-      return res.status(404).json({ message: 'Profile image not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Profile image not found'
+      });
     }
 
-    res.status(200).json({ imageUrl: `/uploads/${user.profileImage}` });
+    const imagePath = path.join(process.cwd(), 'uploads', user.profileImage);
+
+    if (!fs.existsSync(imagePath)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Image file not found on disk'
+      });
+    }
+
+    res.sendFile(imagePath);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching image', error: error.message });
+    console.error('Image fetch error:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch profile image'
+    });
   }
 };

@@ -34,7 +34,6 @@ const backendURL = import.meta.env.VITE_BACKEND_URL;
 const Home = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [profileImage, setProfileImage] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -53,20 +52,6 @@ const Home = () => {
     getProjects();
   }, []);
 
-  useEffect(() => {
-    const fetchProfileImage = async () => {
-      try {
-        const res = await axios.get(`${backendURL}/api/profile/image`);
-        if (res.data?.imageUrl) {
-          setProfileImage(`${backendURL}${res.data.imageUrl}?ts=${Date.now()}`);
-        }
-      } catch (error) {
-        console.error('Failed to load profile image:', error);
-      }
-    };
-    fetchProfileImage();
-  }, []);
-
   const skills = [
     { name: 'JavaScript', icon: <CodeIcon fontSize="large" /> },
     { name: 'Python', icon: <DataObjectIcon fontSize="large" /> },
@@ -83,7 +68,6 @@ const Home = () => {
     { name: 'MongoDB', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg' },
     { name: 'Express', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg' },
     { name: 'Python', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
-    
     { name: 'Git', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg' },
   ];
 
@@ -307,7 +291,7 @@ const Home = () => {
               >
                 <Box
                   component="img"
-                  src={profileImage || '/fallback-avatar.png'}
+                  src="/yash cv.jpg"  // Directly using the image from public folder
                   alt="Profile"
                   sx={{
                     width: '100%',
@@ -898,8 +882,6 @@ const Home = () => {
               >
                 <LinkedInIcon fontSize="large" />
               </Button>
-              
-              
               
               <Button
                 variant="text"
