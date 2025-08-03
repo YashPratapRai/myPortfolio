@@ -176,7 +176,7 @@ const Navbar = () => {
               sx={{ display: 'flex', alignItems: 'center' }}
             >
               <Avatar
-                src="/logo.png" // Replace with your logo
+                src="/Screenshot 2025-08-03 110510.png" // Replace with your logo
                 alt="Logo"
                 sx={{
                   width: 40,
