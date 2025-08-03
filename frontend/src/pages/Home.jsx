@@ -385,7 +385,7 @@ const Home = () => {
                 fontWeight: 'bold',
                 fontSize: isMobile ? '1.5rem' : '2rem',
                 '&::before': {
-                  content: '"03."',
+                  content: '"02."',
                   fontFamily: 'monospace',
                   color: '#64ffda',
                   mr: 2
@@ -644,7 +644,7 @@ const Home = () => {
                 fontWeight: 'bold',
                 fontSize: isMobile ? '1.5rem' : '2rem',
                 '&::before': {
-                  content: '"02."',
+                  content: '"03."',
                   fontFamily: 'monospace',
                   color: '#64ffda',
                   mr: 2
