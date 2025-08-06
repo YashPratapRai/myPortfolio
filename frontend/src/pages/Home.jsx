@@ -14,9 +14,7 @@ import {
 import { fetchProjects } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
-import ProjectCard from '../components/ProjectCard';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 // Icons
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -26,7 +24,6 @@ import CodeIcon from '@mui/icons-material/Code';
 import DataObjectIcon from '@mui/icons-material/DataObject';
 import StorageIcon from '@mui/icons-material/Storage';
 import InsightsIcon from '@mui/icons-material/Insights';
-import FunctionsIcon from '@mui/icons-material/Functions';
 import DeveloperModeIcon from '@mui/icons-material/DeveloperMode';
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
@@ -39,18 +36,25 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const getProjects = async () => {
-      try {
-        const { data } = await fetchProjects();
-        setProjects(data);
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getProjects();
-  }, []);
+  const getProjects = async () => {
+    try {
+      const { data } = await fetchProjects();
+      // Format thumbnail URLs properly - match the Projects.jsx approach
+      const formattedProjects = data.map(project => ({
+        ...project,
+        thumbnail: project.thumbnail
+          ? `${backendURL}/uploads/${project.thumbnail}`
+          : '/default-project.jpg'
+      }));
+      setProjects(formattedProjects);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  getProjects();
+}, []);
 
   const skills = [
     { name: 'JavaScript', icon: <CodeIcon fontSize="large" /> },
@@ -291,7 +295,7 @@ const Home = () => {
               >
                 <Box
                   component="img"
-                  src="/yash cv.jpg"  // Directly using the image from public folder
+                  src="/yash cv.jpg"
                   alt="Profile"
                   sx={{
                     width: '100%',
@@ -391,7 +395,7 @@ const Home = () => {
           ) : (
             <Grid container spacing={6}>
               <AnimatePresence>
-                {projects.slice(0, 3).map((project, index) => (
+                {[...projects].reverse().slice(0, 3).map((project, index) => (
                   <Grid item xs={12} key={project._id}>
                     <motion.div
                       initial={{ opacity: 0, y: 50 }}
@@ -510,11 +514,7 @@ const Home = () => {
                         >
                           <Box
                             component="img"
-                            src={
-                              project.thumbnail
-                                ? `${backendURL}/uploads/${project.thumbnail}`
-                                : '/profile_enrique.png'
-                            }
+                            src={project.thumbnail}
                             alt={project.title}
                             sx={{
                               width: '100%',

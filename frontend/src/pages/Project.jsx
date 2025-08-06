@@ -233,7 +233,7 @@ const Projects = () => {
         {/* Projects Grid - 2 per row */}
         <Grid container spacing={6} justifyContent="center">
           <AnimatePresence>
-            {projects.map((project, index) => (
+            {[...projects].reverse().map((project, index) => (
               <Grid 
                 item 
                 key={project._id || project.title} 
