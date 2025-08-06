@@ -15,7 +15,7 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Ensure uploads folder exists
+// ✅ Ensure uploads folder exists
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -24,15 +24,30 @@ if (!fs.existsSync(uploadsDir)) {
   console.log('📂 uploads folder exists at:', uploadsDir);
 }
 
-// Middleware
+// ✅ CORS setup
+const allowedOrigins = [
+  'http://localhost:5173',                            // local frontend
+  process.env.FRONTEND_URL                           // deployed frontend (e.g. https://your-frontend.vercel.app)
+];
+
 app.use(cors({
-  origin: 'http://localhost:5173', // or update based on frontend host
+  origin: function(origin, callback) {
+    // allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
+
+// ✅ Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from uploads
+// ✅ Serve static files from uploads
 app.use('/uploads', express.static(uploadsDir, {
   setHeaders: (res, filePath) => {
     if (/\.(jpe?g|png)$/i.test(filePath)) {
@@ -41,16 +56,16 @@ app.use('/uploads', express.static(uploadsDir, {
   }
 }));
 
-// Routes
+// ✅ Routes
 app.use('/api/projects', projectRoutes);
 app.use('/api/contact', contactRoutes);
 
-// Health check
+// ✅ Health check
 app.get('/', (req, res) => {
   res.json({ status: 'healthy', message: 'Portfolio backend running fine ✅' });
 });
 
-// Error handling
+// ✅ Error handling
 app.use((err, req, res, next) => {
   console.error('🔥 Error:', err.message);
   res.status(err.status || 500).json({
@@ -58,7 +73,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// MongoDB connection
+// ✅ MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -68,8 +83,8 @@ mongoose.connect(process.env.MONGO_URI, {
   console.error('❌ MongoDB connection error:', err.message);
 });
 
-// Start server
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running at port ${PORT}`);
 });
