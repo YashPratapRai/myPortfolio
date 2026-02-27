@@ -11,7 +11,9 @@ export const submitContactForm = async (req, res) => {
 
     // Email setup
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,        // your Gmail
         pass: process.env.EMAIL_PASS         // App-specific password
