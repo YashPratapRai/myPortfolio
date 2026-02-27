@@ -395,7 +395,7 @@ const Home = () => {
           ) : (
             <Grid container spacing={6}>
               <AnimatePresence>
-                {projects.slice(0, 3).map((project, index) => (
+                {projects.slice(0, 4).map((project, index) => (
                   <Grid item xs={12} key={project._id}>
                     <motion.div
                       initial={{ opacity: 0, y: 50 }}
