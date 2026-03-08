@@ -3,95 +3,113 @@ import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-import CV from '../models/CV.js'; // ensure .js extension
+import CV from '../models/cv.js';
 
 const router = express.Router();
 
-// __dirname fix for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configure multer for CV upload
+// storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = 'uploads/';
+
+    const uploadDir = path.join(__dirname, '../uploads');
+
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
+
     cb(null, uploadDir);
   },
+
   filename: (req, file, cb) => {
     cb(null, 'Yash_Pratap_Rai_CV.pdf');
   }
 });
 
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'application/pdf') {
-    cb(null, true);
-  } else {
-    cb(new Error('Only PDF files are allowed'), false);
-  }
-};
-
 const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
+  storage,
   limits: { fileSize: 5 * 1024 * 1024 }
 });
 
-// Get CV info
+
+// GET CV INFO FROM DB
 router.get('/info', async (req, res) => {
+
   try {
-    const cvPath = path.join(__dirname, '../uploads/Yash_Pratap_Rai_CV.pdf');
 
-    if (fs.existsSync(cvPath)) {
-      const stats = fs.statSync(cvPath);
+    const cv = await CV.findOne().sort({ uploadDate: -1 });
 
-      res.json({
-        filename: 'Yash_Pratap_Rai_CV.pdf',
-        size: stats.size,
-        uploadDate: stats.mtime,
-        url: `${process.env.BACKEND_URL}/uploads/Yash_Pratap_Rai_CV.pdf`
-      });
-    } else {
-      res.status(404).json({ message: 'CV not found' });
+    if (!cv) {
+      return res.status(404).json({ message: "CV not found" });
     }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+
+    res.json(cv);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
+
 });
 
-// Upload CV
+
+// UPLOAD CV
 router.post('/upload', upload.single('cv'), async (req, res) => {
+
   try {
+
     if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+      return res.status(400).json({ message: "No file uploaded" });
     }
+
+    const url = `${process.env.BACKEND_URL}/uploads/${req.file.filename}`;
+
+    const cv = new CV({
+      filename: req.file.filename,
+      size: req.file.size,
+      url: url
+    });
+
+    await cv.save();
 
     res.json({
-      message: 'CV uploaded successfully',
-      filename: req.file.filename
+      message: "CV uploaded successfully",
+      data: cv
     });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
+
 });
 
-// Delete CV
-router.delete('/', async (req, res) => {
-  try {
-    const cvPath = path.join(__dirname, '../uploads/Yash_Pratap_Rai_CV.pdf');
 
-    if (fs.existsSync(cvPath)) {
-      fs.unlinkSync(cvPath);
-      res.json({ message: 'CV deleted successfully' });
-    } else {
-      res.status(404).json({ message: 'CV not found' });
+// DELETE CV
+router.delete('/', async (req, res) => {
+
+  try {
+
+    const cv = await CV.findOne().sort({ uploadDate: -1 });
+
+    if (!cv) {
+      return res.status(404).json({ message: "CV not found" });
     }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+
+    const filePath = path.join(__dirname, '../uploads', cv.filename);
+
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    await CV.deleteMany();
+
+    res.json({ message: "CV deleted successfully" });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
+
 });
 
 export default router;
