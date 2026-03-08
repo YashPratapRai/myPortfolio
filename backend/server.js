@@ -8,12 +8,15 @@ import { fileURLToPath } from 'url';
 
 import projectRoutes from './routes/projectRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
+import cvRoutes from './routes/cv.js';
 
 dotenv.config();
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// In your main server file (e.g., server.js or app.js)
+
 
 // ✅ Ensure uploads folder exists
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -46,7 +49,7 @@ app.use(cors({
 // ✅ Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use('/api/cv', cvRoutes);
 // ✅ Serve static files from uploads
 app.use('/uploads', express.static(uploadsDir, {
   setHeaders: (res, filePath) => {

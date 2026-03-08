@@ -25,36 +25,60 @@ import DataObjectIcon from '@mui/icons-material/DataObject';
 import StorageIcon from '@mui/icons-material/Storage';
 import InsightsIcon from '@mui/icons-material/Insights';
 import DeveloperModeIcon from '@mui/icons-material/DeveloperMode';
+import DownloadIcon from '@mui/icons-material/Download'; // Add this import
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 const Home = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cvLoading, setCvLoading] = useState(false); // Add state for CV download loading
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
 
   useEffect(() => {
-  const getProjects = async () => {
+    const getProjects = async () => {
+      try {
+        const { data } = await fetchProjects();
+        // Format thumbnail URLs properly - match the Projects.jsx approach
+        const formattedProjects = data.map(project => ({
+          ...project,
+          thumbnail: project.thumbnail
+            ? `${backendURL}/uploads/${project.thumbnail}`
+            : '/default-project.jpg'
+        }));
+        setProjects(formattedProjects);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getProjects();
+  }, []);
+
+  // Add function to handle CV download
+  const handleDownloadCV = async () => {
     try {
-      const { data } = await fetchProjects();
-      // Format thumbnail URLs properly - match the Projects.jsx approach
-      const formattedProjects = data.map(project => ({
-        ...project,
-        thumbnail: project.thumbnail
-          ? `${backendURL}/uploads/${project.thumbnail}`
-          : '/default-project.jpg'
-      }));
-      setProjects(formattedProjects);
+      setCvLoading(true);
+      // Assuming your CV is stored in the backend uploads folder
+      const cvUrl = `${backendURL}/uploads/cv.pdf`; // Update this path based on your backend CV storage
+      
+      // Create a link element to trigger download
+      const link = document.createElement('a');
+      link.href = cvUrl;
+      link.setAttribute('download', 'Yash_Pratap_Rai_CV.pdf'); // Set the filename
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (error) {
-      console.error('Error fetching projects:', error);
+      console.error('Error downloading CV:', error);
+      // You might want to show an error toast/notification here
     } finally {
-      setLoading(false);
+      setCvLoading(false);
     }
   };
-  getProjects();
-}, []);
 
   const skills = [
     { name: 'JavaScript', icon: <CodeIcon fontSize="large" /> },
@@ -229,7 +253,7 @@ const Home = () => {
                   I'm a full-stack developer specializing in building exceptional digital experiences. Currently focused on building accessible, human-centered products at the intersection of technology and design.
                 </Typography>
                 
-                <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                   <Button
                     variant="contained"
                     onClick={() => navigate('/projects')}
@@ -276,6 +300,37 @@ const Home = () => {
                     whileTap={{ scale: 0.95 }}
                   >
                     Get In Touch
+                  </Button>
+
+                  {/* Add Download CV Button */}
+                  <Button
+                    variant="outlined"
+                    onClick={handleDownloadCV}
+                    disabled={cvLoading}
+                    startIcon={cvLoading ? <CircularProgress size={20} color="inherit" /> : <DownloadIcon />}
+                    sx={{
+                      px: 4,
+                      py: 1.5,
+                      borderRadius: 1,
+                      fontWeight: 'bold',
+                      borderColor: '#64ffda',
+                      color: '#64ffda',
+                      '&:hover': {
+                        backgroundColor: 'rgba(100,255,218,0.1)',
+                        borderColor: '#64ffda',
+                        transform: 'translateY(-3px)'
+                      },
+                      '&.Mui-disabled': {
+                        borderColor: 'rgba(100,255,218,0.3)',
+                        color: 'rgba(100,255,218,0.3)'
+                      },
+                      transition: 'all 0.3s ease'
+                    }}
+                    component={motion.div}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {cvLoading ? 'Downloading...' : 'Download CV'}
                   </Button>
                 </Box>
               </Box>
@@ -330,6 +385,7 @@ const Home = () => {
         </Container>
       </Box>
 
+      {/* Rest of your component remains exactly the same */}
       {/* Projects Section */}
       <Box
         id="projects"
