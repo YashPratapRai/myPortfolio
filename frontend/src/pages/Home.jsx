@@ -25,14 +25,14 @@ import DataObjectIcon from '@mui/icons-material/DataObject';
 import StorageIcon from '@mui/icons-material/Storage';
 import InsightsIcon from '@mui/icons-material/Insights';
 import DeveloperModeIcon from '@mui/icons-material/DeveloperMode';
-import DownloadIcon from '@mui/icons-material/Download'; // Add this import
+import DownloadIcon from '@mui/icons-material/Download';
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 const Home = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cvLoading, setCvLoading] = useState(false); // Add state for CV download loading
+  const [cvLoading, setCvLoading] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
@@ -41,7 +41,6 @@ const Home = () => {
     const getProjects = async () => {
       try {
         const { data } = await fetchProjects();
-        // Format thumbnail URLs properly - match the Projects.jsx approach
         const formattedProjects = data.map(project => ({
           ...project,
           thumbnail: project.thumbnail
@@ -58,23 +57,24 @@ const Home = () => {
     getProjects();
   }, []);
 
-  // Add function to handle CV download
   const handleDownloadCV = async () => {
     try {
       setCvLoading(true);
-      // Assuming your CV is stored in the backend uploads folder
-      const cvUrl = `${backendURL}/uploads/cv.pdf`; // Update this path based on your backend CV storage
-      
-      // Create a link element to trigger download
-      const link = document.createElement('a');
-      link.href = cvUrl;
-      link.setAttribute('download', 'Yash_Pratap_Rai_CV.pdf'); // Set the filename
+      const response = await fetch(`${backendURL}/api/cv/info`);
+      const data = await response.json();
+
+      if (!data.url) {
+        throw new Error("CV URL not found");
+      }
+
+      const link = document.createElement("a");
+      link.href = data.url;
+      link.download = data.filename || "Yash_Pratap_Rai_CV.pdf";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (error) {
-      console.error('Error downloading CV:', error);
-      // You might want to show an error toast/notification here
+      console.error("Error downloading CV:", error);
     } finally {
       setCvLoading(false);
     }
@@ -180,13 +180,17 @@ const Home = () => {
         />
 
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
-          <Grid container spacing={6} alignItems="center">
+          <Grid container spacing={4} alignItems="center">
             <Grid item xs={12} md={6}>
               <Box
                 component={motion.div}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
+                sx={{
+                  maxWidth: '100%',
+                  pr: { md: 3 }
+                }}
               >
                 <Typography
                   variant="h6"
@@ -206,7 +210,7 @@ const Home = () => {
                   sx={{
                     fontWeight: 'bold',
                     mb: 2,
-                    fontSize: isMobile ? '2.5rem' : '4rem',
+                    fontSize: isMobile ? '2.5rem' : '3.5rem',
                     lineHeight: 1.1,
                     color: '#ccd6f6'
                   }}
@@ -214,31 +218,35 @@ const Home = () => {
                   Yash Pratap Rai.
                 </Typography>
                 
-                <Typography
-                  variant="h2"
-                  component="div"
-                  sx={{
-                    fontWeight: 'bold',
-                    mb: 3,
-                    fontSize: isMobile ? '2rem' : '3rem',
-                    lineHeight: 1.1,
-                    color: '#8892b0'
-                  }}
-                >
-                  <TypeAnimation
-                    sequence={[
-                      "I build things for the web.",
-                      1500,
-                      "I analyze and visualize data.",
-                      1500,
-                      "I solve complex problems.",
-                      1500
-                    ]}
-                    wrapper="span"
-                    speed={50}
-                    repeat={Infinity}
-                  />
-                </Typography>
+                <Box sx={{ height: isMobile ? '100px' : '120px', mb: 2 }}>
+                  <Typography
+                    variant="h2"
+                    component="div"
+                    sx={{
+                      fontWeight: 'bold',
+                      fontSize: isMobile ? '1.5rem' : '2rem',
+                      lineHeight: 1.3,
+                      color: '#8892b0'
+                    }}
+                  >
+                    <TypeAnimation
+                      sequence={[
+                        "Machine Learning Engineer",
+                        1500,
+                        "NLP Specialist",
+                        1500,
+                        "Deep Learning Engineer",
+                        1500,
+                        "Generative AI Explorer",
+                        1500,
+                      ]}
+                      wrapper="span"
+                      speed={50}
+                      repeat={Infinity}
+                    
+                    />
+                  </Typography>
+                </Box>
                 
                 <Typography
                   variant="body1"
@@ -246,11 +254,12 @@ const Home = () => {
                     mb: 4,
                     maxWidth: '540px',
                     color: '#8892b0',
-                    fontSize: isMobile ? '1rem' : '1.1rem',
-                    lineHeight: 1.6
+                    fontSize: isMobile ? '0.95rem' : '1rem',
+                    lineHeight: 1.7
                   }}
                 >
-                  I'm a full-stack developer specializing in building exceptional digital experiences. Currently focused on building accessible, human-centered products at the intersection of technology and design.
+                  I work on Machine Learning, NLP, Deep Learning and explore Generative AI. 
+                  Currently building data pipelines and analytics workflows using Azure Data Factory and Databricks.
                 </Typography>
                 
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -302,7 +311,6 @@ const Home = () => {
                     Get In Touch
                   </Button>
 
-                  {/* Add Download CV Button */}
                   <Button
                     variant="outlined"
                     onClick={handleDownloadCV}
@@ -336,12 +344,12 @@ const Home = () => {
               </Box>
             </Grid>
             
-            <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <Box
                 sx={{
                   position: 'relative',
-                  width: isMobile ? 250 : 350,
-                  height: isMobile ? 250 : 350,
+                  width: isMobile ? 280 : 350,
+                  height: isMobile ? 280 : 350,
                 }}
                 component={motion.div}
                 initial={{ scale: 0.9, opacity: 0 }}
@@ -350,7 +358,7 @@ const Home = () => {
               >
                 <Box
                   component="img"
-                  src="/yash cv.jpg"
+                  src="/WhatsApp Image 2026-03-09 at 1.27.50 AM.jpeg"
                   alt="Profile"
                   sx={{
                     width: '100%',
@@ -385,7 +393,6 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Rest of your component remains exactly the same */}
       {/* Projects Section */}
       <Box
         id="projects"
