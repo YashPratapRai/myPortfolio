@@ -9,14 +9,12 @@ import {
   useTheme,
   useMediaQuery,
   Chip,
-  Divider
 } from '@mui/material';
 import { fetchProjects } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import { useNavigate } from 'react-router-dom';
 
-// Icons
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import EmailIcon from '@mui/icons-material/Email';
@@ -26,30 +24,43 @@ import StorageIcon from '@mui/icons-material/Storage';
 import InsightsIcon from '@mui/icons-material/Insights';
 import DeveloperModeIcon from '@mui/icons-material/DeveloperMode';
 import DownloadIcon from '@mui/icons-material/Download';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
 
+/* ─────────────── tiny helpers ─────────────── */
+const accent = '#64ffda';
+const navy   = '#0a192f';
+const navyLight = '#112240';
+const slate  = '#8892b0';
+const lightSlate = '#a8b2d1';
+const white  = '#ccd6f6';
+
+const glowBox = {
+  boxShadow: `0 0 0 1px rgba(100,255,218,0.08), 0 20px 40px -20px rgba(2,12,27,0.8)`,
+};
+
+/* ─────────────── component ─────────────── */
 const Home = () => {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects]   = useState([]);
+  const [loading, setLoading]     = useState(true);
   const [cvLoading, setCvLoading] = useState(false);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const navigate = useNavigate();
+  const [hoveredSkill, setHoveredSkill] = useState(null);
+  const theme      = useTheme();
+  const isMobile   = useMediaQuery(theme.breakpoints.down('sm'));
+  const navigate   = useNavigate();
 
   useEffect(() => {
     const getProjects = async () => {
       try {
         const { data } = await fetchProjects();
-        const formattedProjects = data.map(project => ({
-          ...project,
-          thumbnail: project.thumbnail
-            ? `${backendURL}/uploads/${project.thumbnail}`
-            : '/default-project.jpg'
-        }));
-        setProjects(formattedProjects);
-      } catch (error) {
-        console.error('Error fetching projects:', error);
+        setProjects(data.map(p => ({
+          ...p,
+          thumbnail: p.thumbnail ? `${backendURL}/uploads/${p.thumbnail}` : '/default-project.jpg',
+        })));
+      } catch (e) {
+        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -60,52 +71,84 @@ const Home = () => {
   const handleDownloadCV = async () => {
     try {
       setCvLoading(true);
-      const response = await fetch(`${backendURL}/api/cv/info`);
-      const data = await response.json();
-
-      if (!data.url) {
-        throw new Error("CV URL not found");
-      }
-
-      const link = document.createElement("a");
+      const res  = await fetch(`${backendURL}/api/cv/info`);
+      const data = await res.json();
+      if (!data.url) throw new Error('CV URL not found');
+      const link = document.createElement('a');
       link.href = data.url;
-      link.download = data.filename || "Yash_Pratap_Rai_CV.pdf";
+      link.download = data.filename || 'Yash_Pratap_Rai_CV.pdf';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (error) {
-      console.error("Error downloading CV:", error);
+    } catch (e) {
+      console.error(e);
     } finally {
       setCvLoading(false);
     }
   };
 
+  /* ── updated skills list ── */
   const skills = [
-    { name: 'JavaScript', icon: <CodeIcon fontSize="large" /> },
-    { name: 'Python', icon: <DataObjectIcon fontSize="large" /> },
-    { name: 'Java', icon: <DeveloperModeIcon fontSize="large" /> },
-    { name: 'C/C++', icon: <CodeIcon fontSize="large" /> },
-    { name: 'MERN Stack', icon: <DeveloperModeIcon fontSize="large" /> },
-    { name: 'SQL/NoSQL', icon: <StorageIcon fontSize="large" /> },
-    { name: 'Data Analysis', icon: <InsightsIcon fontSize="large" /> },
+    { name: 'Machine Learning',  icon: <PsychologyIcon />,    desc: 'Supervised & unsupervised models, feature engineering' },
+    { name: 'Deep Learning',     icon: <AutoAwesomeIcon />,   desc: 'CNNs, RNNs, Transformers, PyTorch / TensorFlow' },
+    { name: 'Python',            icon: <DataObjectIcon />,    desc: 'NumPy, Pandas, Scikit-learn, FastAPI' },
+    { name: 'JavaScript',        icon: <CodeIcon />,          desc: 'ES2022+, async patterns, React ecosystem' },
+    { name: 'Java / C / C++',    icon: <DeveloperModeIcon />, desc: 'OOP, systems programming, algorithms' },
+    { name: 'SQL / NoSQL',       icon: <StorageIcon />,       desc: 'PostgreSQL, MongoDB, query optimisation' },
+    { name: 'Data Analysis',     icon: <InsightsIcon />,      desc: 'Azure Databricks, Data Factory, Power BI' },
   ];
 
   const techStack = [
-    { name: 'React', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg' },
-    { name: 'Node.js', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg' },
-    { name: 'MongoDB', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg' },
-    { name: 'Express', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg' },
-    { name: 'Python', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
-    { name: 'Git', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg' },
+    { name: 'React',      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg' },
+    { name: 'Node.js',    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg' },
+    { name: 'MongoDB',    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg' },
+    { name: 'Python',     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
+    { name: 'PyTorch',    icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg' },
+    { name: 'TensorFlow', icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg' },
+    { name: 'Git',        icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg' },
+    { name: 'Docker',     icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg' },
   ];
 
+  /* ── section heading helper ── */
+  const SectionHeading = ({ number, children }) => (
+    <Box
+      component={motion.div}
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      viewport={{ once: true }}
+      sx={{ mb: 8, display: 'flex', alignItems: 'center', gap: 2 }}
+    >
+      <Typography
+        sx={{
+          fontFamily: 'monospace',
+          color: accent,
+          fontSize: isMobile ? '0.9rem' : '1.1rem',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {number}.
+      </Typography>
+      <Typography
+        variant="h4"
+        component="h2"
+        sx={{
+          fontWeight: 700,
+          color: white,
+          fontSize: isMobile ? '1.4rem' : '2rem',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {children}
+      </Typography>
+      <Box sx={{ flex: 1, height: '1px', backgroundColor: '#233554', ml: 2 }} />
+    </Box>
+  );
+
   return (
-    <Box sx={{ 
-      overflowX: 'hidden',
-      backgroundColor: '#0a192f',
-      color: '#e6f1ff'
-    }}>
-      {/* Hero Section */}
+    <Box sx={{ overflowX: 'hidden', backgroundColor: navy, color: white }}>
+
+      {/* ══════════════ HERO ══════════════ */}
       <Box
         sx={{
           minHeight: '100vh',
@@ -113,278 +156,275 @@ const Home = () => {
           alignItems: 'center',
           position: 'relative',
           overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            width: '50%',
-            height: '100%',
-            background: 'linear-gradient(135deg, rgba(10,25,47,0.9) 0%, rgba(21,101,192,0.4) 100%)',
-            zIndex: 1,
-            [theme.breakpoints.down('md')]: {
-              width: '100%',
-              background: 'linear-gradient(135deg, rgba(10,25,47,0.95) 0%, rgba(21,101,192,0.3) 100%)',
-            }
-          }
         }}
       >
-        {/* Animated background elements */}
+        {/* Ambient blobs */}
+        {[
+          { top: '15%', left: '5%',   size: 420, delay: 0 },
+          { top: '55%', right: '8%',  size: 340, delay: 5 },
+          { top: '70%', left: '40%',  size: 260, delay: 10 },
+        ].map((b, i) => (
+          <Box
+            key={i}
+            component={motion.div}
+            animate={{ x: [0, 60, 0], y: [0, -40, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 18 + i * 4, repeat: Infinity, ease: 'easeInOut', delay: b.delay }}
+            sx={{
+              position: 'absolute',
+              top: b.top,
+              left: b.left,
+              right: b.right,
+              width: b.size,
+              height: b.size,
+              borderRadius: '50%',
+              background: `radial-gradient(circle, rgba(100,255,218,0.12) 0%, transparent 70%)`,
+              filter: 'blur(50px)',
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
+        ))}
+
+        {/* Dot-grid texture */}
         <Box
-          component={motion.div}
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -50, 0],
-            rotate: [0, 5, 0]
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
           sx={{
             position: 'absolute',
-            top: '20%',
-            left: '10%',
-            width: 300,
-            height: 300,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(100,255,218,0.15) 0%, transparent 70%)',
-            filter: 'blur(40px)',
-            zIndex: 0
-          }}
-        />
-        
-        <Box
-          component={motion.div}
-          animate={{
-            x: [0, -100, 0],
-            y: [0, 50, 0]
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          sx={{
-            position: 'absolute',
-            bottom: '10%',
-            right: '15%',
-            width: 400,
-            height: 400,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(100,255,218,0.1) 0%, transparent 70%)',
-            filter: 'blur(50px)',
-            zIndex: 0
+            inset: 0,
+            backgroundImage: `radial-gradient(rgba(100,255,218,0.06) 1px, transparent 1px)`,
+            backgroundSize: '32px 32px',
+            zIndex: 0,
+            pointerEvents: 'none',
           }}
         />
 
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
-          <Grid container spacing={4} alignItems="center">
-            <Grid item xs={12} md={6}>
+          <Grid container spacing={6} alignItems="center">
+
+            {/* ── text side ── */}
+            <Grid item xs={12} md={7}>
               <Box
                 component={motion.div}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 32 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                sx={{
-                  maxWidth: '100%',
-                  pr: { md: 3 }
-                }}
+                transition={{ duration: 0.9 }}
               >
                 <Typography
-                  variant="h6"
                   sx={{
-                    color: '#64ffda',
-                    mb: 2,
+                    color: accent,
+                    mb: 1.5,
                     fontFamily: 'monospace',
-                    fontSize: isMobile ? '1rem' : '1.25rem'
+                    fontSize: isMobile ? '0.9rem' : '1.1rem',
+                    letterSpacing: '0.12em',
                   }}
                 >
                   Hi, my name is
                 </Typography>
-                
+
                 <Typography
-                  variant="h2"
-                  component="h1"
+                  variant="h1"
                   sx={{
-                    fontWeight: 'bold',
-                    mb: 2,
-                    fontSize: isMobile ? '2.5rem' : '3.5rem',
-                    lineHeight: 1.1,
-                    color: '#ccd6f6'
+                    fontWeight: 800,
+                    mb: 1,
+                    fontSize: isMobile ? '2.6rem' : '4.2rem',
+                    lineHeight: 1.05,
+                    color: white,
+                    letterSpacing: '-0.02em',
                   }}
                 >
                   Yash Pratap Rai.
                 </Typography>
-                
-                <Box sx={{ height: isMobile ? '100px' : '120px', mb: 2 }}>
+
+                <Box sx={{ mb: 3, minHeight: isMobile ? 56 : 72 }}>
                   <Typography
                     variant="h2"
                     component="div"
                     sx={{
-                      fontWeight: 'bold',
-                      fontSize: isMobile ? '1.5rem' : '2rem',
+                      fontWeight: 700,
+                      fontSize: isMobile ? '1.4rem' : '2.2rem',
+                      color: slate,
                       lineHeight: 1.3,
-                      color: '#8892b0'
                     }}
                   >
                     <TypeAnimation
                       sequence={[
-                        "Machine Learning Engineer",
-                        1500,
-                        "NLP Specialist",
-                        1500,
-                        "Deep Learning Engineer",
-                        1500,
-                        "Generative AI Explorer",
-                        1500,
+                        'Built Machine Learning Projects', 1800,
+                        'Built NLP-based Recommendation System',1800,
+                        'Built Deep Learning Models (LSTM)',    1800,
+                        'Exploring Generative AI',    1800,
                       ]}
                       wrapper="span"
                       speed={50}
                       repeat={Infinity}
-                    
                     />
                   </Typography>
                 </Box>
-                
+
                 <Typography
                   variant="body1"
                   sx={{
-                    mb: 4,
-                    maxWidth: '540px',
-                    color: '#8892b0',
-                    fontSize: isMobile ? '0.95rem' : '1rem',
-                    lineHeight: 1.7
+                    mb: 5,
+                    maxWidth: 560,
+                    color: slate,
+                    fontSize: isMobile ? '0.95rem' : '1.05rem',
+                    lineHeight: 1.8,
                   }}
                 >
-                  I work on Machine Learning, NLP, Deep Learning and explore Generative AI. 
-                  Currently building data pipelines and analytics workflows using Azure Data Factory and Databricks.
+                  I build intelligent systems across Machine Learning, NLP, and Deep Learning — and
+                  explore the frontier of Generative AI. Currently crafting data pipelines and
+                  analytics workflows with Azure Data Factory and Databricks.
                 </Typography>
-                
+
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  {/* Primary CTA */}
                   <Button
-                    variant="contained"
                     onClick={() => navigate('/projects')}
+                    component={motion.button}
+                    whileHover={{ y: -3 }}
+                    whileTap={{ scale: 0.96 }}
                     sx={{
-                      px: 4,
-                      py: 1.5,
-                      borderRadius: 1,
-                      fontWeight: 'bold',
-                      backgroundColor: '#64ffda',
-                      color: '#0a192f',
-                      '&:hover': {
-                        backgroundColor: '#52d1b2',
-                        transform: 'translateY(-3px)'
-                      },
-                      transition: 'all 0.3s ease',
-                      boxShadow: '0 10px 20px -10px rgba(100,255,218,0.3)'
+                      px: 4, py: 1.5,
+                      fontWeight: 700,
+                      borderRadius: '4px',
+                      backgroundColor: accent,
+                      color: navy,
+                      fontSize: '0.95rem',
+                      boxShadow: `0 8px 24px -8px rgba(100,255,218,0.5)`,
+                      '&:hover': { backgroundColor: '#52d1b2' },
+                      transition: 'background 0.2s',
                     }}
-                    component={motion.div}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
                   >
                     View My Work
                   </Button>
-                  
-                  <Button
-                    variant="outlined"
-                    onClick={() => navigate('/contact')}
-                    sx={{
-                      px: 4,
-                      py: 1.5,
-                      borderRadius: 1,
-                      fontWeight: 'bold',
-                      borderColor: '#64ffda',
-                      color: '#64ffda',
-                      '&:hover': {
-                        backgroundColor: 'rgba(100,255,218,0.1)',
-                        borderColor: '#64ffda',
-                        transform: 'translateY(-3px)'
-                      },
-                      transition: 'all 0.3s ease'
-                    }}
-                    component={motion.div}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Get In Touch
-                  </Button>
+
+                  {/* Outline CTAs */}
+                  {[
+                    { label: 'Get In Touch', action: () => navigate('/contact') },
+                  ].map(({ label, action }) => (
+                    <Button
+                      key={label}
+                      onClick={action}
+                      component={motion.button}
+                      whileHover={{ y: -3 }}
+                      whileTap={{ scale: 0.96 }}
+                      sx={{
+                        px: 4, py: 1.5,
+                        fontWeight: 700,
+                        borderRadius: '4px',
+                        border: `1px solid ${accent}`,
+                        color: accent,
+                        fontSize: '0.95rem',
+                        '&:hover': { backgroundColor: 'rgba(100,255,218,0.08)' },
+                        transition: 'background 0.2s',
+                      }}
+                    >
+                      {label}
+                    </Button>
+                  ))}
 
                   <Button
-                    variant="outlined"
                     onClick={handleDownloadCV}
                     disabled={cvLoading}
-                    startIcon={cvLoading ? <CircularProgress size={20} color="inherit" /> : <DownloadIcon />}
+                    startIcon={cvLoading ? <CircularProgress size={16} color="inherit" /> : <DownloadIcon />}
+                    component={motion.button}
+                    whileHover={{ y: -3 }}
+                    whileTap={{ scale: 0.96 }}
                     sx={{
-                      px: 4,
-                      py: 1.5,
-                      borderRadius: 1,
-                      fontWeight: 'bold',
-                      borderColor: '#64ffda',
-                      color: '#64ffda',
-                      '&:hover': {
-                        backgroundColor: 'rgba(100,255,218,0.1)',
-                        borderColor: '#64ffda',
-                        transform: 'translateY(-3px)'
-                      },
-                      '&.Mui-disabled': {
-                        borderColor: 'rgba(100,255,218,0.3)',
-                        color: 'rgba(100,255,218,0.3)'
-                      },
-                      transition: 'all 0.3s ease'
+                      px: 4, py: 1.5,
+                      fontWeight: 700,
+                      borderRadius: '4px',
+                      border: `1px solid ${accent}`,
+                      color: accent,
+                      fontSize: '0.95rem',
+                      '&:hover': { backgroundColor: 'rgba(100,255,218,0.08)' },
+                      '&.Mui-disabled': { borderColor: 'rgba(100,255,218,0.25)', color: 'rgba(100,255,218,0.25)' },
+                      transition: 'background 0.2s',
                     }}
-                    component={motion.div}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
                   >
-                    {cvLoading ? 'Downloading...' : 'Download CV'}
+                    {cvLoading ? 'Downloading…' : 'Download CV'}
                   </Button>
+                </Box>
+
+                {/* Social row */}
+                <Box sx={{ mt: 4, display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                  {[
+                    { icon: <GitHubIcon />,   href: 'https://github.com/YashPratapRai' },
+                    { icon: <LinkedInIcon />, href: 'https://www.linkedin.com/in/yash-pratap-rai-00465a284/' },
+                    { icon: <EmailIcon />,    href: 'mailto:raiyashpratap@gmail.com' },
+                  ].map(({ icon, href }, i) => (
+                    <Box
+                      key={i}
+                      component="a"
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        border: `1px solid #233554`,
+                        color: lightSlate,
+                        transition: 'all 0.2s',
+                        '&:hover': { color: accent, borderColor: accent, transform: 'translateY(-3px)' },
+                      }}
+                    >
+                      {icon}
+                    </Box>
+                  ))}
+                  <Box sx={{ width: 80, height: '1px', backgroundColor: '#233554', ml: 1 }} />
                 </Box>
               </Box>
             </Grid>
-            
-            <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+
+            {/* ── photo side ── */}
+            <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'center' }}>
               <Box
-                sx={{
-                  position: 'relative',
-                  width: isMobile ? 280 : 350,
-                  height: isMobile ? 280 : 350,
-                }}
                 component={motion.div}
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.8 }}
+                initial={{ opacity: 0, scale: 0.88 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.35, duration: 0.9 }}
+                sx={{ position: 'relative', width: isMobile ? 260 : 320, height: isMobile ? 260 : 320 }}
               >
+                {/* glow ring */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: -12,
+                    borderRadius: '8px',
+                    background: `conic-gradient(from 180deg, transparent 60%, rgba(100,255,218,0.35) 100%)`,
+                    filter: 'blur(12px)',
+                    zIndex: 0,
+                  }}
+                />
                 <Box
                   component="img"
                   src="/WhatsApp Image 2026-03-09 at 1.27.50 AM.jpeg"
                   alt="Profile"
                   sx={{
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '5px',
-                    objectFit: 'cover',
                     position: 'relative',
                     zIndex: 2,
-                    filter: 'grayscale(100%) contrast(1)',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      filter: 'none'
-                    }
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '6px',
+                    filter: 'grayscale(100%) contrast(1.05)',
+                    transition: 'filter 0.4s ease',
+                    '&:hover': { filter: 'none' },
                   }}
                 />
+                {/* corner border */}
                 <Box
                   sx={{
                     position: 'absolute',
-                    top: 15,
-                    left: 15,
-                    right: -15,
-                    bottom: -15,
-                    borderRadius: '5px',
-                    border: '2px solid #64ffda',
+                    top: 14,
+                    left: 14,
+                    right: -14,
+                    bottom: -14,
+                    borderRadius: '6px',
+                    border: `2px solid ${accent}`,
                     zIndex: 1,
-                    transition: 'all 0.3s ease'
                   }}
                 />
               </Box>
@@ -393,186 +433,145 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Projects Section */}
-      <Box
-        id="projects"
-        sx={{
-          py: 10,
-          backgroundColor: '#0a192f',
-          position: 'relative'
-        }}
-      >
+      {/* ══════════════ PROJECTS ══════════════ */}
+      <Box id="projects" sx={{ py: 12, backgroundColor: navy }}>
         <Container maxWidth="xl">
-          <Box
-            sx={{
-              mb: 8,
-              position: 'relative',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: '50%',
-                left: 0,
-                width: '100%',
-                height: '1px',
-                backgroundColor: '#233554',
-                zIndex: -1
-              }
-            }}
-            component={motion.div}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <Typography
-              variant="h4"
-              component="h2"
-              sx={{
-                display: 'inline-block',
-                backgroundColor: '#0a192f',
-                pr: 2,
-                fontFamily: 'monospace',
-                color: '#ccd6f6',
-                fontWeight: 'bold',
-                fontSize: isMobile ? '1.5rem' : '2rem',
-                '&::before': {
-                  content: '"02."',
-                  fontFamily: 'monospace',
-                  color: '#64ffda',
-                  mr: 2
-                }
-              }}
-            >
-              Some Things I've Built
-            </Typography>
-          </Box>
+          <SectionHeading number="02">Some Things I've Built</SectionHeading>
 
           {loading ? (
             <Box display="flex" justifyContent="center" alignItems="center" height="300px">
-              <CircularProgress size={60} thickness={4} sx={{ color: '#64ffda' }} />
+              <CircularProgress size={56} thickness={3} sx={{ color: accent }} />
             </Box>
           ) : projects.length === 0 ? (
-            <Typography align="center" variant="h6" color="text.secondary">
-              No projects to display.
-            </Typography>
+            <Typography align="center" color="text.secondary">No projects to display.</Typography>
           ) : (
-            <Grid container spacing={6}>
+            <Grid container spacing={5}>
               <AnimatePresence>
                 {projects.slice(0, 4).map((project, index) => (
                   <Grid item xs={12} key={project._id}>
                     <motion.div
-                      initial={{ opacity: 0, y: 50 }}
+                      initial={{ opacity: 0, y: 48 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1, duration: 0.5 }}
+                      transition={{ delay: index * 0.08, duration: 0.55 }}
                       viewport={{ once: true }}
                     >
                       <Box
                         sx={{
                           display: 'flex',
                           flexDirection: isMobile ? 'column' : 'row',
-                          alignItems: 'center',
-                          gap: 4,
-                          backgroundColor: '#112240',
-                          borderRadius: '5px',
-                          p: 4,
-                          boxShadow: '0 10px 30px -15px rgba(2,12,27,0.7)',
-                          transition: 'all 0.3s ease',
+                          alignItems: 'stretch',
+                          gap: 0,
+                          backgroundColor: navyLight,
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                          ...glowBox,
+                          transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                           '&:hover': {
-                            transform: 'translateY(-7px)'
-                          }
+                            transform: 'translateY(-6px)',
+                            boxShadow: `0 0 0 1px rgba(100,255,218,0.2), 0 30px 50px -20px rgba(2,12,27,0.9)`,
+                          },
                         }}
                       >
-                        <Box sx={{ flex: 1, order: index % 2 === 0 ? 1 : 2 }}>
+                        {/* text */}
+                        <Box
+                          sx={{
+                            flex: 1,
+                            p: isMobile ? 3 : 5,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            order: index % 2 === 0 ? 1 : 2,
+                          }}
+                        >
+                          <Typography
+                            sx={{ fontFamily: 'monospace', color: accent, fontSize: '0.8rem', mb: 1, letterSpacing: '0.1em' }}
+                          >
+                            Featured Project
+                          </Typography>
                           <Typography
                             variant="h5"
-                            component="h3"
-                            sx={{
-                              color: '#ccd6f6',
-                              mb: 2,
-                              fontWeight: 'bold',
-                              fontSize: isMobile ? '1.5rem' : '1.75rem'
-                            }}
+                            sx={{ color: white, fontWeight: 700, mb: 2, fontSize: isMobile ? '1.3rem' : '1.6rem' }}
                           >
                             {project.title}
                           </Typography>
-                          <Typography
-                            variant="body1"
+
+                          {/* description card */}
+                          <Box
                             sx={{
+                              p: 2.5,
                               mb: 3,
-                              color: '#a8b2d1',
-                              fontSize: isMobile ? '0.9rem' : '1rem',
-                              lineHeight: 1.6
+                              backgroundColor: '#0d1f3c',
+                              borderRadius: '4px',
+                              borderLeft: `3px solid ${accent}`,
                             }}
                           >
-                            {project.description}
-                          </Typography>
-                          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 3 }}>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: lightSlate, lineHeight: 1.75, fontSize: isMobile ? '0.85rem' : '0.95rem' }}
+                            >
+                              {project.description}
+                            </Typography>
+                          </Box>
+
+                          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: 3 }}>
                             {(project.tags || []).map((tag, i) => (
                               <Chip
                                 key={i}
                                 label={tag}
                                 size="small"
                                 sx={{
-                                  backgroundColor: 'transparent',
-                                  color: '#a8b2d1',
-                                  border: '1px solid #64ffda',
+                                  backgroundColor: 'rgba(100,255,218,0.08)',
+                                  color: accent,
                                   fontFamily: 'monospace',
-                                  fontSize: '0.7rem'
+                                  fontSize: '0.7rem',
+                                  border: 'none',
+                                  height: 24,
                                 }}
                               />
                             ))}
                           </Box>
-                          <Box sx={{ display: 'flex', gap: 2 }}>
+
+                          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                             {project.githubLink && (
-                              <Button
-                                variant="text"
-                                size="small"
+                              <Box
+                                component="a"
                                 href={project.githubLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                sx={{
-                                  color: '#64ffda',
-                                  minWidth: 0,
-                                  p: 1,
-                                  '&:hover': {
-                                    backgroundColor: 'rgba(100,255,218,0.1)'
-                                  }
-                                }}
+                                sx={{ color: lightSlate, '&:hover': { color: accent }, display: 'flex' }}
                               >
-                                <GitHubIcon fontSize="small" />
-                              </Button>
+                                <GitHubIcon />
+                              </Box>
                             )}
                             {project.liveDemoLink && (
                               <Button
-                                variant="text"
-                                size="small"
                                 href={project.liveDemoLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                size="small"
                                 sx={{
-                                  color: '#64ffda',
-                                  fontSize: '0.8rem',
+                                  color: accent,
                                   fontFamily: 'monospace',
-                                  '&:hover': {
-                                    backgroundColor: 'rgba(100,255,218,0.1)'
-                                  }
+                                  fontSize: '0.8rem',
+                                  p: 0,
+                                  minWidth: 0,
+                                  '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
                                 }}
                               >
-                                Visit Live
+                                ↗ Visit Live
                               </Button>
                             )}
                           </Box>
                         </Box>
+
+                        {/* image */}
                         <Box
                           sx={{
                             flex: 1,
                             order: index % 2 === 0 ? 2 : 1,
+                            minHeight: isMobile ? 220 : 'auto',
                             position: 'relative',
                             overflow: 'hidden',
-                            borderRadius: '5px',
-                            '&:hover img': {
-                              transform: 'scale(1.03)'
-                            }
                           }}
                         >
                           <Box
@@ -581,29 +580,20 @@ const Home = () => {
                             alt={project.title}
                             sx={{
                               width: '100%',
-                              height: 'auto',
+                              height: '100%',
                               objectFit: 'cover',
-                              transition: 'transform 0.5s ease',
-                              filter: 'grayscale(100%) contrast(1) brightness(90%)',
-                              '&:hover': {
-                                filter: 'none'
-                              }
+                              filter: 'grayscale(80%) brightness(85%)',
+                              transition: 'filter 0.4s ease, transform 0.5s ease',
+                              '&:hover': { filter: 'none', transform: 'scale(1.04)' },
                             }}
                           />
+                          {/* tint overlay */}
                           <Box
                             sx={{
                               position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              bottom: 0,
-                              backgroundColor: 'rgba(100,255,218,0.1)',
-                              mixBlendMode: 'screen',
-                              opacity: 0,
-                              transition: 'opacity 0.3s ease',
-                              '&:hover': {
-                                opacity: 0.2
-                              }
+                              inset: 0,
+                              background: `linear-gradient(135deg, rgba(10,25,47,0.4) 0%, transparent 70%)`,
+                              pointerEvents: 'none',
                             }}
                           />
                         </Box>
@@ -615,31 +605,18 @@ const Home = () => {
             </Grid>
           )}
 
-          <Box
-            sx={{ textAlign: 'center', mt: 8 }}
-            component={motion.div}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            viewport={{ once: true }}
-          >
+          <Box sx={{ textAlign: 'center', mt: 8 }}>
             <Button
-              variant="outlined"
-              size="large"
               onClick={() => navigate('/projects')}
+              component={motion.button}
+              whileHover={{ y: -3 }}
               sx={{
-                px: 6,
-                py: 1.5,
-                borderRadius: 1,
-                fontWeight: 'bold',
-                fontSize: '1rem',
-                borderColor: '#64ffda',
-                color: '#64ffda',
-                '&:hover': {
-                  backgroundColor: 'rgba(100,255,218,0.1)',
-                  borderColor: '#64ffda'
-                },
-                transition: 'all 0.3s ease'
+                px: 6, py: 1.5,
+                fontWeight: 700,
+                borderRadius: '4px',
+                border: `1px solid ${accent}`,
+                color: accent,
+                '&:hover': { backgroundColor: 'rgba(100,255,218,0.08)' },
               }}
             >
               View All Projects
@@ -648,118 +625,95 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Skills Section */}
+      {/* ══════════════ SKILLS ══════════════ */}
       <Box
         id="skills"
         sx={{
-          py: 10,
-          backgroundColor: '#0a192f',
-          position: 'relative'
+          py: 12,
+          backgroundColor: '#0b1a30',
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `radial-gradient(rgba(100,255,218,0.04) 1px, transparent 1px)`,
+            backgroundSize: '28px 28px',
+            pointerEvents: 'none',
+          },
         }}
       >
-        <Container maxWidth="lg">
-          <Box
-            sx={{
-              mb: 8,
-              position: 'relative',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: '50%',
-                left: 0,
-                width: '100%',
-                height: '1px',
-                backgroundColor: '#233554',
-                zIndex: -1
-              }
-            }}
-            component={motion.div}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <Typography
-              variant="h4"
-              component="h2"
-              sx={{
-                display: 'inline-block',
-                backgroundColor: '#0a192f',
-                pr: 2,
-                fontFamily: 'monospace',
-                color: '#ccd6f6',
-                fontWeight: 'bold',
-                fontSize: isMobile ? '1.5rem' : '2rem',
-                '&::before': {
-                  content: '"03."',
-                  fontFamily: 'monospace',
-                  color: '#64ffda',
-                  mr: 2
-                }
-              }}
-            >
-              Skills & Technologies
-            </Typography>
-          </Box>
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
+          <SectionHeading number="03">Skills &amp; Technologies</SectionHeading>
 
           <Grid container spacing={6}>
-            <Grid item xs={12} md={6}>
+            {/* ── skill cards ── */}
+            <Grid item xs={12} md={7}>
               <Box
                 component={motion.div}
-                initial={{ opacity: 0, x: -50 }}
+                initial={{ opacity: 0, x: -40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6 }}
                 viewport={{ once: true }}
               >
-                <Typography
-                  variant="h5"
-                  component="h3"
-                  sx={{
-                    color: '#ccd6f6',
-                    mb: 3,
-                    fontWeight: 'bold',
-                    fontSize: isMobile ? '1.25rem' : '1.5rem'
-                  }}
-                >
+                <Typography variant="h6" sx={{ color: white, mb: 3, fontWeight: 600 }}>
                   What I Do
                 </Typography>
-                
-                <Grid container spacing={3}>
-                  {skills.map((skill, index) => (
-                    <Grid item xs={6} key={index}>
+
+                <Grid container spacing={2}>
+                  {skills.map((skill, i) => (
+                    <Grid item xs={12} sm={6} key={i}>
                       <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 2,
-                          p: 2,
-                          backgroundColor: '#112240',
-                          borderRadius: '5px',
-                          transition: 'all 0.3s ease',
-                          '&:hover': {
-                            transform: 'translateY(-5px)',
-                            boxShadow: '0 10px 20px -10px rgba(2,12,27,0.7)'
-                          }
-                        }}
                         component={motion.div}
-                        whileHover={{ scale: 1.03 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.06, duration: 0.4 }}
+                        viewport={{ once: true }}
+                        onMouseEnter={() => setHoveredSkill(i)}
+                        onMouseLeave={() => setHoveredSkill(null)}
+                        sx={{
+                          p: 2.5,
+                          borderRadius: '6px',
+                          backgroundColor: navyLight,
+                          border: `1px solid ${hoveredSkill === i ? 'rgba(100,255,218,0.3)' : '#1d3254'}`,
+                          cursor: 'default',
+                          transition: 'all 0.25s ease',
+                          transform: hoveredSkill === i ? 'translateY(-4px)' : 'none',
+                          boxShadow: hoveredSkill === i
+                            ? '0 16px 32px -12px rgba(2,12,27,0.8)'
+                            : 'none',
+                        }}
                       >
-                        <Box
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                          <Box
+                            sx={{
+                              width: 36,
+                              height: 36,
+                              borderRadius: '8px',
+                              backgroundColor: 'rgba(100,255,218,0.1)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: accent,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {skill.icon}
+                          </Box>
+                          <Typography sx={{ color: white, fontWeight: 600, fontSize: '0.95rem' }}>
+                            {skill.name}
+                          </Typography>
+                        </Box>
+                        <Typography
                           sx={{
-                            width: 40,
-                            height: 40,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(100,255,218,0.1)',
-                            color: '#64ffda'
+                            color: slate,
+                            fontSize: '0.78rem',
+                            lineHeight: 1.6,
+                            pl: '52px',
+                            opacity: hoveredSkill === i ? 1 : 0.7,
+                            transition: 'opacity 0.2s',
                           }}
                         >
-                          {skill.icon}
-                        </Box>
-                        <Typography variant="body1" sx={{ color: '#ccd6f6' }}>
-                          {skill.name}
+                          {skill.desc}
                         </Typography>
                       </Box>
                     </Grid>
@@ -767,63 +721,81 @@ const Home = () => {
                 </Grid>
               </Box>
             </Grid>
-            
-            <Grid item xs={12} md={6}>
+
+            {/* ── tech stack ── */}
+            <Grid item xs={12} md={5}>
               <Box
                 component={motion.div}
-                initial={{ opacity: 0, x: 50 }}
+                initial={{ opacity: 0, x: 40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6 }}
                 viewport={{ once: true }}
               >
-                <Typography
-                  variant="h5"
-                  component="h3"
-                  sx={{
-                    color: '#ccd6f6',
-                    mb: 3,
-                    fontWeight: 'bold',
-                    fontSize: isMobile ? '1.25rem' : '1.5rem'
-                  }}
-                >
+                <Typography variant="h6" sx={{ color: white, mb: 3, fontWeight: 600 }}>
                   Tech Stack
                 </Typography>
-                
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 2
-                  }}
-                >
-                  {techStack.map((tech, index) => (
+
+                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2 }}>
+                  {techStack.map((tech, i) => (
                     <Box
-                      key={index}
+                      key={i}
+                      component={motion.div}
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.07, duration: 0.4 }}
+                      viewport={{ once: true }}
+                      whileHover={{ y: -6, scale: 1.06 }}
                       sx={{
                         display: 'flex',
+                        flexDirection: 'column',
                         alignItems: 'center',
                         gap: 1,
                         p: 2,
-                        backgroundColor: '#112240',
-                        borderRadius: '5px',
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          transform: 'translateY(-5px)',
-                          boxShadow: '0 10px 20px -10px rgba(2,12,27,0.7)'
-                        }
+                        borderRadius: '8px',
+                        backgroundColor: navyLight,
+                        border: '1px solid #1d3254',
+                        cursor: 'default',
+                        transition: 'border-color 0.2s',
+                        '&:hover': { borderColor: 'rgba(100,255,218,0.3)' },
                       }}
-                      component={motion.div}
-                      whileHover={{ scale: 1.03 }}
                     >
                       <Box
                         component="img"
                         src={tech.icon}
                         alt={tech.name}
-                        sx={{ width: 24, height: 24 }}
+                        sx={{ width: 32, height: 32 }}
                       />
-                      <Typography variant="body2" sx={{ color: '#ccd6f6' }}>
+                      <Typography sx={{ color: lightSlate, fontSize: '0.7rem', textAlign: 'center' }}>
                         {tech.name}
                       </Typography>
+                    </Box>
+                  ))}
+                </Box>
+
+                {/* stats strip */}
+                <Box
+                  sx={{
+                    mt: 4,
+                    p: 3,
+                    borderRadius: '6px',
+                    backgroundColor: navyLight,
+                    border: '1px solid #1d3254',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: 2,
+                    textAlign: 'center',
+                  }}
+                >
+                  {[
+                    { value: '10+', label: 'Projects' },
+                    { value: '3+', label: 'Years Coding' },
+                    { value: '5+', label: 'Tech Areas' },
+                  ].map(({ value, label }) => (
+                    <Box key={label}>
+                      <Typography sx={{ color: accent, fontWeight: 700, fontSize: '1.5rem', fontFamily: 'monospace' }}>
+                        {value}
+                      </Typography>
+                      <Typography sx={{ color: slate, fontSize: '0.75rem' }}>{label}</Typography>
                     </Box>
                   ))}
                 </Box>
@@ -833,135 +805,97 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Contact CTA */}
-      <Box
-        id="contact"
-        sx={{
-          py: 10,
-          backgroundColor: '#0a192f',
-          textAlign: 'center'
-        }}
-      >
-        <Container maxWidth="md">
+      {/* ══════════════ CONTACT CTA ══════════════ */}
+      <Box id="contact" sx={{ py: 14, backgroundColor: navy, textAlign: 'center' }}>
+        <Container maxWidth="sm">
           <Box
             component={motion.div}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
             viewport={{ once: true }}
           >
-            <Typography
-              variant="h6"
-              sx={{
-                color: '#64ffda',
-                mb: 2,
-                fontFamily: 'monospace',
-                fontSize: isMobile ? '1rem' : '1.25rem'
-              }}
-            >
+            <Typography sx={{ color: accent, mb: 2, fontFamily: 'monospace', letterSpacing: '0.1em' }}>
               04. What's Next?
             </Typography>
-            
+
             <Typography
-              variant="h3"
-              component="h2"
+              variant="h2"
               sx={{
-                fontWeight: 'bold',
+                fontWeight: 800,
                 mb: 3,
-                fontSize: isMobile ? '2rem' : '3rem',
-                color: '#ccd6f6'
+                fontSize: isMobile ? '2.2rem' : '3.2rem',
+                color: white,
+                letterSpacing: '-0.02em',
               }}
             >
               Get In Touch
             </Typography>
-            
+
             <Typography
               variant="body1"
-              sx={{
-                mb: 5,
-                maxWidth: 600,
-                mx: 'auto',
-                color: '#8892b0',
-                fontSize: isMobile ? '1rem' : '1.1rem',
-                lineHeight: 1.6
-              }}
+              sx={{ mb: 5, color: slate, fontSize: isMobile ? '1rem' : '1.1rem', lineHeight: 1.8 }}
             >
-              Although I'm currently looking for any new opportunities, my inbox is always open. Whether you have a question or just want to say hi, I'll try my best to get back to you!
+              I'm currently open to new opportunities. Whether you have a question, a project
+              idea, or just want to say hi — my inbox is always open.
             </Typography>
-            
+
             <Button
-              variant="outlined"
-              size="large"
               onClick={() => navigate('/contact')}
+              component={motion.button}
+              whileHover={{ y: -4, boxShadow: `0 12px 30px -8px rgba(100,255,218,0.4)` }}
+              whileTap={{ scale: 0.96 }}
               sx={{
-                px: 6,
-                py: 1.5,
-                borderRadius: 1,
-                fontWeight: 'bold',
-                borderColor: '#64ffda',
-                color: '#64ffda',
-                '&:hover': {
-                  backgroundColor: 'rgba(100,255,218,0.1)',
-                  borderColor: '#64ffda'
-                },
-                transition: 'all 0.3s ease'
+                px: 7, py: 1.75,
+                fontWeight: 700,
+                fontSize: '1rem',
+                borderRadius: '4px',
+                border: `1px solid ${accent}`,
+                color: accent,
+                '&:hover': { backgroundColor: 'rgba(100,255,218,0.08)' },
+                transition: 'background 0.2s',
               }}
-              component={motion.div}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
             >
               Say Hello
             </Button>
-            
-            <Box sx={{ mt: 8, display: 'flex', justifyContent: 'center', gap: 3 }}>
-              <Button
-                variant="text"
-                href="https://github.com/YashPratapRai"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  color: '#ccd6f6',
-                  minWidth: 0,
-                  '&:hover': {
-                    color: '#64ffda'
-                  }
-                }}
-              >
-                <GitHubIcon fontSize="large" />
-              </Button>
-              
-              <Button
-                variant="text"
-                href="https://www.linkedin.com/in/yash-pratap-rai-00465a284/"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  color: '#ccd6f6',
-                  minWidth: 0,
-                  '&:hover': {
-                    color: '#64ffda'
-                  }
-                }}
-              >
-                <LinkedInIcon fontSize="large" />
-              </Button>
-              
-              <Button
-                variant="text"
-                href="mailto:raiyashpratap@gmail.com"
-                sx={{
-                  color: '#ccd6f6',
-                  minWidth: 0,
-                  '&:hover': {
-                    color: '#64ffda'
-                  }
-                }}
-              >
-                <EmailIcon fontSize="large" />
-              </Button>
+
+            <Box sx={{ mt: 7, display: 'flex', justifyContent: 'center', gap: 2 }}>
+              {[
+                { icon: <GitHubIcon />,   href: 'https://github.com/YashPratapRai', label: 'GitHub' },
+                { icon: <LinkedInIcon />, href: 'https://www.linkedin.com/in/yash-pratap-rai-00465a284/', label: 'LinkedIn' },
+                { icon: <EmailIcon />,    href: 'mailto:raiyashpratap@gmail.com', label: 'Email' },
+              ].map(({ icon, href, label }) => (
+                <Box
+                  key={label}
+                  component="a"
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={label}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 48,
+                    height: 48,
+                    borderRadius: '50%',
+                    border: '1px solid #233554',
+                    color: lightSlate,
+                    transition: 'all 0.25s',
+                    '&:hover': {
+                      color: accent,
+                      borderColor: accent,
+                      transform: 'translateY(-4px)',
+                      boxShadow: `0 8px 20px -8px rgba(100,255,218,0.4)`,
+                    },
+                  }}
+                >
+                  {icon}
+                </Box>
+              ))}
             </Box>
           </Box>
-        </Container> 
+        </Container>
       </Box>
     </Box>
   );
