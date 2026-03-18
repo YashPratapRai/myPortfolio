@@ -26,6 +26,7 @@ import DeveloperModeIcon from '@mui/icons-material/DeveloperMode';
 import DownloadIcon from '@mui/icons-material/Download';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import ContactPopup from '../components/ContactPopup';
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
 
@@ -68,24 +69,10 @@ const Home = () => {
     getProjects();
   }, []);
 
-  const handleDownloadCV = async () => {
-  try {
-    setCvLoading(true);
-    const res = await fetch(`${backendURL}/api/cv/info`);
-    const data = await res.json();
-
-    if (!data.url) throw new Error('CV URL not found');
-
-    // ✅ Best approach
-    window.open(data.url, '_blank');
-
-  } catch (e) {
-    console.error(e);
-  } finally {
-    setCvLoading(false);
-  }
+ const handleDownloadCV = () => {
+  // Just open the /view route directly — backend handles everything
+  window.open(`${backendURL}/api/cv/view`, '_blank', 'noopener,noreferrer');
 };
-
   /* ── updated skills list ── */
   const skills = [
     { name: 'Machine Learning',  icon: <PsychologyIcon />,    desc: 'Supervised & unsupervised models, feature engineering' },
@@ -893,11 +880,12 @@ const Home = () => {
                 </Box>
               ))}
             </Box>
-          </Box>
-        </Container>
+            </Box>
+          </Container>
+        </Box>
+        <ContactPopup/>
       </Box>
-    </Box>
-  );
-};
+    );
+  };
 
 export default Home;
