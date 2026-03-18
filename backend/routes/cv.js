@@ -6,18 +6,17 @@ import CV from '../models/cv.js';
 
 const router = express.Router();
 
-// ✅ Cloudinary storage
+// ✅ FIXED Cloudinary storage
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
+  params: async (req, file) => ({
     folder: 'portfolio_cv',
-    resource_type: 'raw', // IMPORTANT for PDF
+    resource_type: 'raw',
     public_id: 'Yash_Pratap_Rai_CV',
-  },
+  }),
 });
 
 const upload = multer({ storage });
-
 
 // GET CV INFO
 router.get('/info', async (req, res) => {
@@ -30,35 +29,33 @@ router.get('/info', async (req, res) => {
   }
 });
 
-
-// UPLOAD CV (Cloudinary)
+// UPLOAD CV
 router.post('/upload', upload.single('cv'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    // 🔥 Cloudinary URL
     const url = req.file.path;
 
     const cv = new CV({
       filename: req.file.originalname,
       size: req.file.size,
-      url: url
+      url,
     });
 
     await cv.save();
 
     res.json({
       message: "CV uploaded successfully",
-      data: cv
+      data: cv,
     });
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 });
-
 
 // DELETE CV
 router.delete('/', async (req, res) => {
