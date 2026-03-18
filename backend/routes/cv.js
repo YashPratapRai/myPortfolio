@@ -39,7 +39,7 @@ router.post('/upload', upload.single('cv'), async (req, res) => {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const url = req.file.path;
+    const url = req.file.secure_url;
 
     const cv = new CV({
       filename: req.file.originalname,
