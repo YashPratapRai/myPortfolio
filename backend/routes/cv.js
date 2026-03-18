@@ -12,7 +12,10 @@ const storage = new CloudinaryStorage({
   params: async (req, file) => ({
     folder: 'portfolio_cv',
     resource_type: 'raw',
-    public_id: 'Yash_Pratap_Rai_CV',
+
+    // ✅ IMPORTANT FIX
+    public_id: 'Yash_Pratap_Rai_CV.pdf',
+    format: 'pdf', // force pdf format
   }),
 });
 
