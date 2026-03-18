@@ -1,72 +1,48 @@
 import express from 'express';
 import multer from 'multer';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import cloudinary from '../config/cloudinary.js';
 import CV from '../models/cv.js';
 
 const router = express.Router();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-
-    const uploadDir = path.join(__dirname, '../uploads');
-
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    cb(null, uploadDir);
+// ✅ Cloudinary storage
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'portfolio_cv',
+    resource_type: 'raw', // IMPORTANT for PDF
+    public_id: 'Yash_Pratap_Rai_CV',
   },
-
-  filename: (req, file, cb) => {
-    cb(null, 'Yash_Pratap_Rai_CV.pdf');
-  }
 });
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }
-});
+const upload = multer({ storage });
 
 
-// GET CV INFO FROM DB
+// GET CV INFO
 router.get('/info', async (req, res) => {
-
   try {
-
     const cv = await CV.findOne().sort({ uploadDate: -1 });
-
-    if (!cv) {
-      return res.status(404).json({ message: "CV not found" });
-    }
-
+    if (!cv) return res.status(404).json({ message: "CV not found" });
     res.json(cv);
-
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-
 });
 
 
-// UPLOAD CV
+// UPLOAD CV (Cloudinary)
 router.post('/upload', upload.single('cv'), async (req, res) => {
-
   try {
-
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const url = `${process.env.BACKEND_URL}/uploads/${req.file.filename}`;
+    // 🔥 Cloudinary URL
+    const url = req.file.path;
 
     const cv = new CV({
-      filename: req.file.filename,
+      filename: req.file.originalname,
       size: req.file.size,
       url: url
     });
@@ -81,35 +57,17 @@ router.post('/upload', upload.single('cv'), async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-
 });
 
 
 // DELETE CV
 router.delete('/', async (req, res) => {
-
   try {
-
-    const cv = await CV.findOne().sort({ uploadDate: -1 });
-
-    if (!cv) {
-      return res.status(404).json({ message: "CV not found" });
-    }
-
-    const filePath = path.join(__dirname, '../uploads', cv.filename);
-
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-
     await CV.deleteMany();
-
     res.json({ message: "CV deleted successfully" });
-
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-
 });
 
 export default router;

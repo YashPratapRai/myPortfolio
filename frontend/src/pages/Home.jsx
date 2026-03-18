@@ -57,8 +57,8 @@ const Home = () => {
         const { data } = await fetchProjects();
         setProjects(data.map(p => ({
           ...p,
-          thumbnail: p.thumbnail ? `${backendURL}/uploads/${p.thumbnail}` : '/default-project.jpg',
-        })));
+          thumbnail: p.thumbnail || '/default-project.jpg',
+          })));
       } catch (e) {
         console.error(e);
       } finally {
@@ -69,23 +69,22 @@ const Home = () => {
   }, []);
 
   const handleDownloadCV = async () => {
-    try {
-      setCvLoading(true);
-      const res  = await fetch(`${backendURL}/api/cv/info`);
-      const data = await res.json();
-      if (!data.url) throw new Error('CV URL not found');
-      const link = document.createElement('a');
-      link.href = data.url;
-      link.download = data.filename || 'Yash_Pratap_Rai_CV.pdf';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setCvLoading(false);
-    }
-  };
+  try {
+    setCvLoading(true);
+    const res = await fetch(`${backendURL}/api/cv/info`);
+    const data = await res.json();
+
+    if (!data.url) throw new Error('CV URL not found');
+
+    // ✅ Best approach
+    window.open(data.url, '_blank');
+
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setCvLoading(false);
+  }
+};
 
   /* ── updated skills list ── */
   const skills = [

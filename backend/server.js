@@ -2,9 +2,6 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 
 import projectRoutes from './routes/projectRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
@@ -13,29 +10,15 @@ import cvRoutes from './routes/cv.js';
 dotenv.config();
 
 const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-// In your main server file (e.g., server.js or app.js)
 
-
-// ✅ Ensure uploads folder exists
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log('📁 uploads folder created at:', uploadsDir);
-} else {
-  console.log('📂 uploads folder exists at:', uploadsDir);
-}
-
-// ✅ CORS setup
+// ✅ CORS
 const allowedOrigins = [
-  'http://localhost:5173',                            // local frontend
-  process.env.FRONTEND_URL                           // deployed frontend (e.g. https://your-frontend.vercel.app)
+  'http://localhost:5173',
+  process.env.FRONTEND_URL
 ];
 
 app.use(cors({
   origin: function(origin, callback) {
-    // allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
@@ -49,17 +32,9 @@ app.use(cors({
 // ✅ Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/api/cv', cvRoutes);
-// ✅ Serve static files from uploads
-app.use('/uploads', express.static(uploadsDir, {
-  setHeaders: (res, filePath) => {
-    if (/\.(jpe?g|png)$/i.test(filePath)) {
-      res.setHeader('Cache-Control', 'public, max-age=86400');
-    }
-  }
-}));
 
 // ✅ Routes
+app.use('/api/cv', cvRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/contact', contactRoutes);
 
@@ -76,15 +51,10 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ✅ MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log('✅ MongoDB connected');
-}).catch(err => {
-  console.error('❌ MongoDB connection error:', err.message);
-});
+// ✅ MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error('❌ MongoDB error:', err.message));
 
 // ✅ Start server
 const PORT = process.env.PORT || 5000;

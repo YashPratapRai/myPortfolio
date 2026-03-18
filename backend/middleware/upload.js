@@ -1,28 +1,20 @@
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import cloudinary from '../config/cloudinary.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-  console.log('📁 uploads folder created at:', uploadDir);
-}
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    console.log('👉 Uploading file to:', uploadDir);     // 👈 ADD THIS LINE
-    cb(null, uploadDir);
+// Cloudinary storage config
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'projects', // folder name in Cloudinary
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+    public_id: (req, file) => {
+      return `${Date.now()}-${file.originalname.split('.')[0]}`;
+    },
   },
-  filename: function (req, file, cb) {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  }
 });
 
+// Optional: file filter
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
   if (allowedTypes.includes(file.mimetype)) {
@@ -33,4 +25,5 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({ storage, fileFilter });
+
 export default upload;

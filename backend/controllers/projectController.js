@@ -1,13 +1,5 @@
-// controllers/projectController.js
-
 import Project from '../models/Project.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const uploadDir = path.join(__dirname, '../uploads');
+import cloudinary from '../config/cloudinary.js';
 
 // GET all projects
 export const getProjects = async (req, res) => {
@@ -25,12 +17,13 @@ export const addProject = async (req, res) => {
   try {
     const { title, description, techStack, githubLink, liveDemoLink } = req.body;
 
-    // Validate required fields
     if (!title || !description || !techStack || !githubLink || !liveDemoLink) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const techArray = Array.isArray(techStack) ? techStack : techStack.split(',').map(tech => tech.trim());
+    const techArray = Array.isArray(techStack)
+      ? techStack
+      : techStack.split(',').map(tech => tech.trim());
 
     const newProject = new Project({
       title,
@@ -38,7 +31,7 @@ export const addProject = async (req, res) => {
       techStack: techArray,
       githubLink,
       liveDemoLink,
-      thumbnail: req.file?.filename || '',
+      thumbnail: req.file?.path || '', // ✅ Cloudinary URL
     });
 
     await newProject.save();
@@ -49,22 +42,30 @@ export const addProject = async (req, res) => {
   }
 };
 
-// UPDATE existing project
+// UPDATE project
 export const updateProject = async (req, res) => {
   try {
     const { id } = req.params;
     const existingProject = await Project.findById(id);
-    if (!existingProject) return res.status(404).json({ message: 'Project not found' });
+
+    if (!existingProject) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
 
     const { title, description, techStack, githubLink, liveDemoLink } = req.body;
+
     const techArray = Array.isArray(techStack)
       ? techStack
       : techStack?.split(',').map(tech => tech.trim());
 
-    // Remove old thumbnail if new one uploaded
+    // ✅ Delete old image from Cloudinary (IMPORTANT)
     if (req.file && existingProject.thumbnail) {
-      const oldPath = path.join(uploadDir, existingProject.thumbnail);
-      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      const publicId = existingProject.thumbnail
+        .split('/')
+        .pop()
+        .split('.')[0];
+
+      await cloudinary.uploader.destroy(`projects/${publicId}`);
     }
 
     existingProject.title = title || existingProject.title;
@@ -72,7 +73,10 @@ export const updateProject = async (req, res) => {
     existingProject.techStack = techArray || existingProject.techStack;
     existingProject.githubLink = githubLink || existingProject.githubLink;
     existingProject.liveDemoLink = liveDemoLink || existingProject.liveDemoLink;
-    if (req.file) existingProject.thumbnail = req.file.filename;
+
+    if (req.file) {
+      existingProject.thumbnail = req.file.path; // ✅ new Cloudinary URL
+    }
 
     await existingProject.save();
     res.status(200).json(existingProject);
@@ -86,13 +90,21 @@ export const updateProject = async (req, res) => {
 export const deleteProject = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedProject = await Project.findByIdAndDelete(id);
-    if (!deletedProject) return res.status(404).json({ message: 'Project not found' });
 
-    // Delete thumbnail file if exists
+    const deletedProject = await Project.findByIdAndDelete(id);
+
+    if (!deletedProject) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    // ✅ Delete image from Cloudinary
     if (deletedProject.thumbnail) {
-      const thumbPath = path.join(uploadDir, deletedProject.thumbnail);
-      if (fs.existsSync(thumbPath)) fs.unlinkSync(thumbPath);
+      const publicId = deletedProject.thumbnail
+        .split('/')
+        .pop()
+        .split('.')[0];
+
+      await cloudinary.uploader.destroy(`projects/${publicId}`);
     }
 
     res.status(200).json({ message: 'Project deleted successfully' });

@@ -50,10 +50,8 @@ const AdminProjects = () => {
   const [deleteCvDialogOpen, setDeleteCvDialogOpen] = useState(false);
 
   const getThumbnailUrl = (thumb) => {
-    if (!thumb) return '/default.png';
-    if (thumb.startsWith('http')) return thumb;
-    return `${BACKEND_URL}/uploads/${thumb}`;
-  };
+  return thumb || '/default.png';
+};
 
   const fetchProjects = async () => {
     try {

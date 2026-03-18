@@ -252,10 +252,8 @@ const Projects = () => {
                   title={project.title}
                   description={project.description}
                   image={
-                    project.thumbnail
-                      ? `${backendURL}/uploads/${project.thumbnail}`
-                      : '/default-project.jpg'
-                  }
+                        project.thumbnail || '/default-project.jpg'
+                      }
                   githubLink={project.githubLink}
                   liveDemo={project.liveDemoLink}
                   tags={project.tags || []}
