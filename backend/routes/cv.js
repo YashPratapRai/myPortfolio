@@ -6,33 +6,30 @@ import CV from '../models/cv.js';
 
 const router = express.Router();
 
-// ✅ FIXED Cloudinary storage
+/* ───────── Cloudinary Storage ───────── */
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => ({
     folder: 'portfolio_cv',
-    resource_type: 'raw',
-
-    // ✅ IMPORTANT FIX
-    public_id: 'Yash_Pratap_Rai_CV.pdf',
-    format: 'pdf', // force pdf format
+    resource_type: 'auto', // ✅ best for PDF preview
   }),
 });
 
 const upload = multer({ storage });
 
-// GET CV INFO
+/* ───────── GET CV INFO ───────── */
 router.get('/info', async (req, res) => {
   try {
-    const cv = await CV.findOne().sort({ uploadDate: -1 });
+    const cv = await CV.findOne(); // ✅ only one CV needed
     if (!cv) return res.status(404).json({ message: "CV not found" });
+
     res.json(cv);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// UPLOAD CV
+/* ───────── UPLOAD / REPLACE CV ───────── */
 router.post('/upload', upload.single('cv'), async (req, res) => {
   try {
     if (!req.file) {
@@ -40,6 +37,9 @@ router.post('/upload', upload.single('cv'), async (req, res) => {
     }
 
     const url = req.file.secure_url;
+
+    // ✅ DELETE old CV (only keep one)
+    await CV.deleteMany();
 
     const cv = new CV({
       filename: req.file.originalname,
@@ -50,7 +50,7 @@ router.post('/upload', upload.single('cv'), async (req, res) => {
     await cv.save();
 
     res.json({
-      message: "CV uploaded successfully",
+      message: "CV uploaded & replaced successfully",
       data: cv,
     });
 
@@ -60,7 +60,7 @@ router.post('/upload', upload.single('cv'), async (req, res) => {
   }
 });
 
-// DELETE CV
+/* ───────── DELETE CV ───────── */
 router.delete('/', async (req, res) => {
   try {
     await CV.deleteMany();
