@@ -1,48 +1,45 @@
 import Contact from '../models/contact.js';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+// Initialize Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const submitContactForm = async (req, res) => {
-  const { name, email, message, linkedin } = req.body;
+  const { name, email, message, linkedin, subject } = req.body;
 
   try {
-    // Save to DB
-    const newMessage = new Contact({ name, email, message, linkedin });
-    await newMessage.save();
-
-    // Email setup
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,        // your Gmail
-        pass: process.env.EMAIL_PASS         // App-specific password
-      }
+    // ✅ Save message to MongoDB
+    const newMessage = new Contact({
+      name,
+      email,
+      message,
+      linkedin,
+      subject
     });
 
-    const mailOptions = {
-      from: email,
-      to: 'raiyashpratap@gmail.com',
-      subject: `📩 New Contact Message from ${name}`,
-      text: `
-You have received a new message from your portfolio contact form.
+    await newMessage.save();
 
-👤 Name: ${name}
-📧 Email: ${email}
-🔗 LinkedIn: ${linkedin || 'N/A'}
+    // ✅ Send email using Resend (NO SMTP)
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',   // default sender (works instantly)
+      to: 'raiyashpratap@gmail.com',   // your email
+      subject: `📩 ${subject || 'New Message'} - from ${name}`,
 
-📝 Message:
-${message}
-      `
-    };
+      html: `
+        <h2>📩 New Contact Message</h2>
+        <p><b>Name:</b> ${name}</p>
+        <p><b>Email:</b> ${email}</p>
+        <p><b>LinkedIn:</b> ${linkedin || 'N/A'}</p>
+        <p><b>Message:</b></p>
+        <p>${message}</p>
+      `,
+    });
 
-    await transporter.sendMail(mailOptions);
-
-    res.status(201).json({ msg: 'Message sent successfully and emailed!' });
+    // ✅ Success response
+    res.status(201).json({ message: 'Message sent successfully!' });
 
   } catch (error) {
-    console.error('Error handling contact form:', error);
-    res.status(500).json({ msg: 'Server error while sending message.' });
+    console.error('Resend Error:', error);
+    res.status(500).json({ message: 'Failed to send message' });
   }
 };
-
