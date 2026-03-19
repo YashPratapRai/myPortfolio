@@ -1,26 +1,103 @@
 # About Me
-I am Yash Pratap Rai, a software developer focused on AI, full-stack development, and problem solving.
+I am Yash Pratap Rai, a passionate software developer and data enthusiast with strong interests in Artificial Intelligence, Machine Learning, Full-Stack Development, and Data Analytics. I enjoy building intelligent systems, solving real-world problems, and continuously learning new technologies.
+
+I have hands-on experience in developing AI-powered applications, full-stack systems, and data-driven dashboards. My work focuses on combining software engineering with data intelligence to create impactful solutions.
+
+# Skills
+
+## Programming & Technologies
+- C++, Python, JavaScript, SQL, C
+- Data Structures and Algorithms (DSA)
+
+## Data Science & Machine Learning
+- Machine Learning: Linear Regression, Logistic Regression, KNN, Decision Trees, Random Forest, XGBoost, K-Means, PCA
+- Deep Learning: ANN, CNN, RNN (LSTM)
+- Model Evaluation: ROC-AUC, F1 Score, Cross Validation, GridSearchCV
+
+## Data Analysis & Visualization
+- Pandas, NumPy, Matplotlib, Seaborn
+- Power BI, Excel
+- Data Modeling, EDA, KPI Analysis, Dashboard Development
+
+## Databases
+- MySQL, PostgreSQL, MongoDB
+
+## Tools & Platforms
+- Git, GitHub, VS Code, Jupyter Notebook
+
+## Soft Skills
+- Problem Solving
+- Analytical Thinking
+- Communication
+- Team Collaboration
+- Data-Driven Decision Making
 
 # Projects
 
-AI Portfolio Agent
-Built a RAG-based AI chatbot using FastAPI, FAISS, Groq API, and React.
-This chatbot answers user queries based on personal knowledge stored in documents.
+## 1. AI Portfolio Agent
+- Built an intelligent AI agent to answer user queries on a portfolio website
+- Implemented RAG (Retrieval-Augmented Generation)
+- Used FastAPI, LangChain, FAISS, embeddings, and Grok API
+- Integrated with React frontend and Node.js backend
 
-Text Editor with Undo
-Developed a text editor using stack data structure in C++ with undo functionality.
+## 2. Movie Recommendation System
+- Built a content-based recommendation system using TF-IDF and cosine similarity
+- Processed dataset of 45,000+ movies
+- Integrated TMDB API for real-time movie data and posters
+- Developed full-stack app using FastAPI (backend) and Streamlit (frontend)
+- Tech: Python, Scikit-learn, Pandas, NumPy :contentReference[oaicite:0]{index=0}
 
-Hadoop File System Tasks
-Worked with HDFS commands such as put, get, getmerge, and file operations.
+## 3. Brazilian E-Commerce Sales Analytics Dashboard
+- Built end-to-end analytics pipeline on 100K+ orders dataset
+- Designed PostgreSQL schema and optimized queries
+- Created Power BI dashboards with KPIs like revenue, GMV, AOV, YoY growth
+- Used DAX and DirectQuery for real-time insights :contentReference[oaicite:1]{index=1}
 
-# Skills
-C++, JavaScript, Python
-React.js, Node.js, Express
-Data Structures and Algorithms
-Machine Learning basics
+## 4. Cardiovascular Disease Prediction
+- Built ML model using 70,000+ patient records
+- Used XGBoost with hyperparameter tuning
+- Achieved 73.31% accuracy and 80.04% ROC-AUC
+- Created full preprocessing pipeline with feature engineering :contentReference[oaicite:2]{index=2}
 
-# Experience
-Completed training and built multiple real-world projects.
+## 5. Next Word Prediction using LSTM
+- Built deep learning model for sequence prediction
+- Trained on text dataset using LSTM
+- Deployed using Streamlit for real-time predictions :contentReference[oaicite:3]{index=3}
+
+## 6. Text Editor with Undo
+- Implemented stack-based undo functionality using DSA concepts
+
+## 7. Hadoop File System Tasks
+- Worked with HDFS commands and file operations
+- Practiced distributed storage concepts
+
+# Experience / Training
+
+## MERN Stack Training
+- Completed 2-month intensive full-stack training
+- Built multiple full-stack projects using MERN stack
+- Gained experience in deployment (Vercel, Render) and Git collaboration :contentReference[oaicite:4]{index=4}
+
+# Certifications
+- Cloud Computing – IIT Kharagpur
+- Data Structures & Algorithms – iamNeo
+- Object-Oriented Programming – iamNeo
+- Competitive Coding using C++ – CipherSchools
+- C Programming – CipherSchools :contentReference[oaicite:5]{index=5}
 
 # Education
-B.Tech in Computer Science
+- B.Tech in Computer Science and Engineering (CGPA: 8.20) – Lovely Professional University :contentReference[oaicite:6]{index=6}
+- Intermediate (90%) – Udai Pratap Public School
+- Matriculation (83%) – St. Thomas International School
+
+# Achievements
+- Solved multiple DSA problems on LeetCode
+- Built several AI, ML, and full-stack projects
+- Developed real-world data analytics dashboards
+- Hands-on experience with large datasets (100K+ records)
+
+# Personality
+- Passionate about building practical and scalable systems
+- Strong interest in AI and data-driven applications
+- Enjoy solving real-world problems using technology
+- Continuous learner exploring new tools and frameworks
