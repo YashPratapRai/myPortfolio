@@ -5,18 +5,17 @@ from dotenv import load_dotenv
 import os
 import requests
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-env_path = os.path.join(BASE_DIR, ".env")
-
-load_dotenv(dotenv_path=env_path)
+load_dotenv()  # Render will handle env vars
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-print("Loaded API KEY:", GROQ_API_KEY)  # debug
 
 
 # =========================
 # 1. LOAD TEXT FILE
 # =========================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.join(BASE_DIR, "uploads", "knowledge.txt")
+
 def load_text_file(file_path):
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"{file_path} not found")
@@ -39,15 +38,18 @@ def split_text(text):
 
 
 # =========================
-# 3. CREATE VECTOR DB
+# 3. CREATE VECTOR DB (LAZY IMPORT 🔥)
 # =========================
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
 
 def create_vector_db(chunks):
+    # 🔥 move heavy import here
+    from langchain_community.embeddings import HuggingFaceEmbeddings
+
     embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
+
     db = FAISS.from_texts(chunks, embeddings)
     return db
 
@@ -64,7 +66,7 @@ def retrieve_docs(db, query):
 # =========================
 def ask_groq(prompt):
     if not GROQ_API_KEY:
-        raise ValueError("GROQ_API_KEY not found in .env")
+        return "API key not configured properly"
 
     url = "https://api.groq.com/openai/v1/chat/completions"
 
@@ -107,11 +109,9 @@ STRICT RULES:
 
 
 # =========================
-# 6. LAZY LOAD RAG (IMPORTANT 🔥)
+# 6. LAZY LOAD RAG (CRITICAL 🔥)
 # =========================
 db = None
-
-file_path = os.path.join(BASE_DIR, "uploads", "knowledge.txt")
 
 def init_rag():
     global db
@@ -130,10 +130,9 @@ def init_rag():
 # 7. MAIN FUNCTION
 # =========================
 def get_answer(query):
-    init_rag()  # 🔥 load only when needed
+    init_rag()  # load only on first request
 
     docs = retrieve_docs(db, query)
-
     context = "\n".join([doc.page_content for doc in docs])
 
     prompt = f"""
