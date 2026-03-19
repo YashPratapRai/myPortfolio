@@ -59,7 +59,7 @@ const ContactPopup = () => {
 
         .cp-popup {
           position: fixed;
-          bottom: 32px;
+          bottom: 110px;
           right: 32px;
           width: 300px;
           z-index: 2000;

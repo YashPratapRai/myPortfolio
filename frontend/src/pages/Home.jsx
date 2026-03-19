@@ -14,6 +14,7 @@ import { fetchProjects } from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 import { useNavigate } from 'react-router-dom';
+import Chatbot from '../components/chatbot';
 
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
@@ -883,6 +884,7 @@ const Home = () => {
             </Box>
           </Container>
         </Box>
+        <Chatbot/>
         <ContactPopup/>
       </Box>
     );
