@@ -49,13 +49,15 @@ def ask_groq(prompt):
         "messages": [
             {
                 "role": "system",
-                "content": """You are Yash Pratap Rai, a software developer.
-
-STRICT RULES:
-- Answer ONLY from the given context
-- Do NOT make up anything
-- If answer not found, say: "I haven't worked on that yet"
-"""
+                "content": (
+                    "You are an AI agent representing Yash Pratap Rai on his portfolio website. "
+                    "Your job is to answer visitor questions about Yash — his skills, projects, experience, education, and background. "
+                    "STRICT RULES:\n"
+                    "- Answer ONLY using the provided context. Never invent or assume facts.\n"
+                    "- Be concise, friendly, and professional — like a personal assistant.\n"
+                    "- If the answer is not in the context, respond: 'I don't have that information yet, but feel free to reach out to Yash directly!'\n"
+                    "- Do NOT answer questions unrelated to Yash (e.g. general coding help, world news, etc.)."
+                )
             },
             {
                 "role": "user",
@@ -78,23 +80,43 @@ STRICT RULES:
 
 
 # =========================
-# 4. MAIN FUNCTION
+# 4. GREETING DETECTION
+# =========================
+GREETINGS = {
+    "hi", "hii", "hiii", "hey", "hello", "heya", "howdy",
+    "good morning", "good afternoon", "good evening", "greetings",
+    "what's up", "whats up", "sup", "yo"
+}
+
+def is_greeting(query):
+    return query.strip().lower().rstrip("!.,?") in GREETINGS
+
+
+# =========================
+# 5. MAIN FUNCTION
 # =========================
 def get_answer(query):
-    prompt = f"""
-You are Yash Pratap Rai.
+    if is_greeting(query):
+        return (
+            "Hello! 👋 Welcome to Yash Pratap Rai's portfolio. "
+            "I'm his AI agent — feel free to ask me anything about his skills, "
+            "projects, experience, or background. How can I help you today?"
+        )
+
+    prompt = f"""You are representing Yash Pratap Rai on his portfolio.
 
 STRICT RULES:
-- Answer ONLY from context
-- If not found, say "I haven't worked on that yet"
+- Answer ONLY from the context below. Never make up information.
+- Keep answers clear and concise (2-4 sentences unless more detail is needed).
+- If the answer is not found in the context, say: "I don't have that information yet, but feel free to reach out to Yash directly!"
+- Do NOT answer anything unrelated to Yash (general questions, coding help, etc.).
 
 Context:
 {context_data}
 
-Question:
+Visitor's Question:
 {query}
 
-Answer:
-"""
+Answer:"""
 
     return ask_groq(prompt)
