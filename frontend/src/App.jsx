@@ -4,7 +4,9 @@ import Projects from './pages/Project';
 import Contact from './pages/Contact';
 import Navbar from './components/Navbar';
 import AdminProject from './pages/AdminProjects';
-import Footer from './components/Footer'; // ✅ Don't forget this import
+import Footer from './components/Footer'; 
+import Certifications from './pages/certifications';
+
 
 function App() {
   return (
@@ -15,6 +17,7 @@ function App() {
         <Route path="/projects" element={<Projects />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/admin" element={<AdminProject />} />
+        <Route path="/certifications" element={<Certifications />} />
       </Routes>
       <Footer /> {/* ✅ Moved outside Routes */}
     </Router>
