@@ -1,0 +1,26 @@
+# About Me
+I am Yash Pratap Rai, a software developer focused on AI, full-stack development, and problem solving.
+
+# Projects
+
+AI Portfolio Agent
+Built a RAG-based AI chatbot using FastAPI, FAISS, Groq API, and React.
+This chatbot answers user queries based on personal knowledge stored in documents.
+
+Text Editor with Undo
+Developed a text editor using stack data structure in C++ with undo functionality.
+
+Hadoop File System Tasks
+Worked with HDFS commands such as put, get, getmerge, and file operations.
+
+# Skills
+C++, JavaScript, Python
+React.js, Node.js, Express
+Data Structures and Algorithms
+Machine Learning basics
+
+# Experience
+Completed training and built multiple real-world projects.
+
+# Education
+B.Tech in Computer Science
