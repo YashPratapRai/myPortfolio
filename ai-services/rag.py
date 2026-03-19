@@ -1,5 +1,6 @@
 # =========================
 # 0. LOAD ENV VARIABLES
+# =========================
 from dotenv import load_dotenv
 import os
 import requests
@@ -25,26 +26,28 @@ def load_text_file(file_path):
 
 
 # =========================
-# 2. SPLIT TEXT (UPDATED IMPORT)
+# 2. SPLIT TEXT
 # =========================
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 def split_text(text):
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50
+        chunk_size=800,
+        chunk_overlap=100
     )
     return splitter.split_text(text)
 
 
 # =========================
-# 3. CREATE VECTOR DB (UPDATED IMPORTS)
+# 3. CREATE VECTOR DB
 # =========================
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 def create_vector_db(chunks):
-    embeddings = HuggingFaceEmbeddings()
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
     db = FAISS.from_texts(chunks, embeddings)
     return db
 
@@ -53,7 +56,7 @@ def create_vector_db(chunks):
 # 4. RETRIEVAL
 # =========================
 def retrieve_docs(db, query):
-    return db.similarity_search(query, k=3)
+    return db.similarity_search(query, k=5)
 
 
 # =========================
@@ -80,6 +83,7 @@ def ask_groq(prompt):
 STRICT RULES:
 - Answer ONLY from the given context
 - Do NOT make up anything
+- If answer not found, say: "I haven't worked on that yet"
 """
             },
             {
@@ -103,30 +107,49 @@ STRICT RULES:
 
 
 # =========================
-# 6. BUILD RAG PIPELINE
+# 6. LAZY LOAD RAG (IMPORTANT 🔥)
 # =========================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db = None
+
 file_path = os.path.join(BASE_DIR, "uploads", "knowledge.txt")
 
-text = load_text_file(file_path)
-chunks = split_text(text)
-db = create_vector_db(chunks)
+def init_rag():
+    global db
+
+    if db is None:
+        print("Loading RAG pipeline...")
+
+        text = load_text_file(file_path)
+        chunks = split_text(text)
+        db = create_vector_db(chunks)
+
+        print("RAG ready ✅")
 
 
 # =========================
 # 7. MAIN FUNCTION
 # =========================
 def get_answer(query):
+    init_rag()  # 🔥 load only when needed
+
     docs = retrieve_docs(db, query)
 
     context = "\n".join([doc.page_content for doc in docs])
 
     prompt = f"""
+You are Yash Pratap Rai.
+
+STRICT RULES:
+- Answer ONLY from context
+- If not found, say "I haven't worked on that yet"
+
 Context:
 {context}
 
 Question:
 {query}
+
+Answer:
 """
 
     return ask_groq(prompt)
