@@ -12,13 +12,16 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import ProjectCard from '../components/ProjectCard';
 import { fetchProjects } from '../utils/api';
+import Chatbot from '../components/chatbot';
+import ContactPopup from '../components/ContactPopup';
+
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const backendURL = import.meta.env.VITE_BACKEND_URL;
+
 
   useEffect(() => {
     const getProjects = async () => {
@@ -263,6 +266,8 @@ const Projects = () => {
           </AnimatePresence>
         </Grid>
       </Container>
+      <ContactPopup/>
+      <Chatbot/> 
     </Box>
   );
 };

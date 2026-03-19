@@ -17,6 +17,7 @@ import {
   Link as LinkIcon,
   Message as MessageIcon,
 } from '@mui/icons-material';
+import Chatbot from '../components/chatbot';
 
 /* ── design tokens (matches Home.jsx) ── */
 const navy      = '#0a192f';
@@ -423,6 +424,7 @@ const Contact = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <Chatbot />
     </Box>
   );
 };

@@ -6,6 +6,8 @@ import cppCsImg from "../assets/c++_cs.png";
 import dsaImg from "../assets/dsa_neocolab.png";
 import infosysImg from "../assets/infosys_genAI.png";
 import nptelImg from "../assets/nptel.png";
+import Chatbot from "../components/chatbot";
+import ContactPopup from "../components/ContactPopup";
 
 const certs = [
   {
@@ -628,6 +630,8 @@ const filtered = filter === "All" ? [...certs].reverse() : [...certs].filter((c)
             ))}
           </div>
         </div>
+        <ContactPopup />
+        <Chatbot />
       </div>
 
       {/* Modal */}
