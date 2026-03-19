@@ -1,5 +1,4 @@
-langchain
-langchain-community
-langchain-text-splitters
-faiss-cpu
-sentence-transformers
+fastapi
+uvicorn
+requests
+python-dotenv
