@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 import requests
 
-load_dotenv()  # Render will handle env vars
+load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
@@ -25,44 +25,13 @@ def load_text_file(file_path):
 
 
 # =========================
-# 2. SPLIT TEXT
+# 2. LOAD CONTEXT ONCE
 # =========================
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-def split_text(text):
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=100
-    )
-    return splitter.split_text(text)
+context_data = load_text_file(file_path)
 
 
 # =========================
-# 3. CREATE VECTOR DB (LAZY IMPORT 🔥)
-# =========================
-from langchain_community.vectorstores import FAISS
-
-def create_vector_db(chunks):
-    # 🔥 move heavy import here
-    from langchain_community.embeddings import HuggingFaceEmbeddings
-
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
-
-    db = FAISS.from_texts(chunks, embeddings)
-    return db
-
-
-# =========================
-# 4. RETRIEVAL
-# =========================
-def retrieve_docs(db, query):
-    return db.similarity_search(query, k=5)
-
-
-# =========================
-# 5. GROQ API
+# 3. GROQ API
 # =========================
 def ask_groq(prompt):
     if not GROQ_API_KEY:
@@ -109,32 +78,9 @@ STRICT RULES:
 
 
 # =========================
-# 6. LAZY LOAD RAG (CRITICAL 🔥)
-# =========================
-db = None
-
-def init_rag():
-    global db
-
-    if db is None:
-        print("Loading RAG pipeline...")
-
-        text = load_text_file(file_path)
-        chunks = split_text(text)
-        db = create_vector_db(chunks)
-
-        print("RAG ready ✅")
-
-
-# =========================
-# 7. MAIN FUNCTION
+# 4. MAIN FUNCTION
 # =========================
 def get_answer(query):
-    init_rag()  # load only on first request
-
-    docs = retrieve_docs(db, query)
-    context = "\n".join([doc.page_content for doc in docs])
-
     prompt = f"""
 You are Yash Pratap Rai.
 
@@ -143,7 +89,7 @@ STRICT RULES:
 - If not found, say "I haven't worked on that yet"
 
 Context:
-{context}
+{context_data}
 
 Question:
 {query}
