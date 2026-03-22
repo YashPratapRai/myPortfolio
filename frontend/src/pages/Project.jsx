@@ -22,7 +22,6 @@ const Projects = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-
   useEffect(() => {
     const getProjects = async () => {
       try {
@@ -42,14 +41,12 @@ const Projects = () => {
 
   if (loading) {
     return (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
         minHeight="100vh"
-        sx={{
-          background: 'radial-gradient(circle at center, #0f2027, #203a43, #2c5364)',
-        }}
+        sx={{ background: 'radial-gradient(circle at center, #0f2027, #203a43, #2c5364)' }}
       >
         <Box
           sx={{
@@ -62,14 +59,7 @@ const Projects = () => {
             textAlign: 'center'
           }}
         >
-          <CircularProgress 
-            size={80} 
-            thickness={4} 
-            sx={{ 
-              color: '#00d4ff',
-              mb: 3
-            }} 
-          />
+          <CircularProgress size={80} thickness={4} sx={{ color: '#00d4ff', mb: 3 }} />
           <Typography
             variant="h6"
             sx={{
@@ -88,14 +78,12 @@ const Projects = () => {
 
   if (projects.length === 0) {
     return (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
         minHeight="100vh"
-        sx={{
-          background: 'radial-gradient(circle at center, #0f2027, #203a43, #2c5364)',
-        }}
+        sx={{ background: 'radial-gradient(circle at center, #0f2027, #203a43, #2c5364)' }}
       >
         <Box
           sx={{
@@ -115,22 +103,14 @@ const Projects = () => {
               color: '#e0f7fa',
               fontFamily: '"Space Mono", monospace',
               mb: 3,
-              '&::before': {
-                content: '"// "',
-                color: '#00d4ff'
-              }
+              '&::before': { content: '"// "', color: '#00d4ff' }
             }}
           >
             Project Repository Empty
           </Typography>
           <Typography
             variant="body1"
-            sx={{
-              color: '#b0bec5',
-              mb: 4,
-              fontFamily: '"Roboto Mono", monospace',
-              lineHeight: 1.7
-            }}
+            sx={{ color: '#b0bec5', mb: 4, fontFamily: '"Roboto Mono", monospace', lineHeight: 1.7 }}
           >
             Currently no projects available. Please check back later or contact me for more information.
           </Typography>
@@ -138,16 +118,13 @@ const Projects = () => {
             variant="outlined"
             onClick={() => window.location.reload()}
             sx={{
-              px: 4,
-              py: 1.5,
+              px: 4, py: 1.5,
               color: '#00d4ff',
               borderColor: '#00d4ff',
               borderRadius: '8px',
               fontFamily: '"Space Mono", monospace',
               fontWeight: 'bold',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 212, 255, 0.1)'
-              }
+              '&:hover': { backgroundColor: 'rgba(0, 212, 255, 0.1)' }
             }}
           >
             Refresh
@@ -162,26 +139,17 @@ const Projects = () => {
       sx={{
         minHeight: '100vh',
         py: 10,
-        background: `
-          radial-gradient(circle at center, #0f2027, #203a43, #2c5364),
-          url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070&auto=format&fit=crop')
-        `,
-        backgroundSize: 'cover',
-        backgroundAttachment: 'fixed',
-        backgroundPosition: 'center'
+        background: 'radial-gradient(circle at center, #0f2027, #203a43, #2c5364)',
       }}
     >
       <Container maxWidth="xl">
-        {/* Header Section */}
-        <Box 
-          sx={{ 
-            mb: 10,
-            textAlign: 'center'
-          }}
+        {/* Header */}
+        <Box
+          sx={{ mb: 10, textAlign: 'center' }}
           component={motion.div}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.6 }}
         >
           <Typography
             variant="h1"
@@ -228,45 +196,43 @@ const Projects = () => {
               mt: 3
             }}
           >
-            A curated collection of my professional work. Each project demonstrates technical expertise, 
+            A curated collection of my professional work. Each project demonstrates technical expertise,
             creative problem-solving, and attention to detail in full-stack development and data analysis.
           </Typography>
         </Box>
 
-        {/* Projects Grid — 2 per row (unchanged) */}
+        {/* Projects Grid — 2 per row */}
         <Grid container spacing={6} justifyContent="center">
-          <AnimatePresence>
-            {projects.map((project, index) => (
-              <Grid 
-                item 
-                key={project._id || project.title} 
-                xs={12}
-                sm={6}
-                md={6}
-                lg={6}
-                xl={6}
-                component={motion.div}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.15, duration: 0.6 }}
-                layout
-              >
-                {/* ✅ Only change: correct prop names so techStack shows */}
-                <ProjectCard
-                  title={project.title}
-                  description={project.description}
-                  thumbnail={project.thumbnail || '/default-project.jpg'}
-                  githubLink={project.githubLink}
-                  liveDemoLink={project.liveDemoLink}
-                  techStack={project.techStack || []}
-                />
-              </Grid>
-            ))}
-          </AnimatePresence>
+          {/* removed AnimatePresence wrapper + layout prop — both cause layout recalc on every render */}
+          {projects.map((project, index) => (
+            <Grid
+              item
+              key={project._id || project.title}
+              xs={12}
+              sm={6}
+              md={6}
+              lg={6}
+              xl={6}
+              component={motion.div}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              /* capped stagger at 0.06s max so last card doesn't wait 1s+ */
+              transition={{ delay: Math.min(index * 0.08, 0.32), duration: 0.45 }}
+            >
+              <ProjectCard
+                title={project.title}
+                description={project.description}
+                thumbnail={project.thumbnail || '/default-project.jpg'}
+                githubLink={project.githubLink}
+                liveDemoLink={project.liveDemoLink}
+                techStack={project.techStack || []}
+              />
+            </Grid>
+          ))}
         </Grid>
       </Container>
-      <ContactPopup/>
-      <Chatbot/> 
+      <ContactPopup />
+      <Chatbot />
     </Box>
   );
 };
