@@ -387,18 +387,20 @@ const Home = () => {
                 />
                 <Box
                   component="img"
-                  src="/WhatsApp Image 2026-03-09 at 1.27.50 AM.jpeg"
+                  src="\ChatGPT Image Mar 22, 2026, 07_55_42 PM.png"
                   alt="Profile"
                   sx={{
                     position: 'relative',
-                    zIndex: 2,
+                    zIndex: 5,
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
+                    objectPosition: 'center top', 
                     borderRadius: '6px',
-                    filter: 'grayscale(100%) contrast(1.05)',
-                    transition: 'filter 0.4s ease',
-                    '&:hover': { filter: 'none' },
+                    // filter: 'grayscale(100%) contrast(1.05)',
+                    
+                    transition: 'transform 0.4s ease', 
+                    '&:hover': { transform: 'scale(1.02)' },
                   }}
                 />
                 {/* corner border */}
@@ -569,9 +571,9 @@ const Home = () => {
                               width: '100%',
                               height: '100%',
                               objectFit: 'cover',
-                              filter: 'grayscale(80%) brightness(85%)',
-                              transition: 'filter 0.4s ease, transform 0.5s ease',
-                              '&:hover': { filter: 'none', transform: 'scale(1.04)' },
+                              // filter: 'grayscale(80%) brightness(85%)',
+                              transition: 'transform 0.5s ease',
+                              '&:hover': { transform: 'scale(1.04)' },
                             }}
                           />
                           {/* tint overlay */}
