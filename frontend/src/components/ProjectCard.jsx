@@ -19,12 +19,26 @@ const ProjectCard = ({
   title,
   description,
   image,
+  thumbnail,       // ← added: backend field alias
   githubLink,
   liveDemo,
-  tags = []
+  liveDemoLink,    // ← added: backend field alias
+  tags = [],
+  techStack = [],  // ← added: from backend model
 }) => {
   const [isHovered, setIsHovered] = React.useState(false);
   const [imgError, setImgError] = React.useState(false);
+
+  // Support both prop name variants
+  const imgSrc  = image || thumbnail;
+  const demoUrl = liveDemo || liveDemoLink;
+
+  // Safely normalise techStack (array or comma-string)
+  const stack = Array.isArray(techStack)
+    ? techStack
+    : typeof techStack === 'string' && techStack.trim()
+      ? techStack.split(',').map(s => s.trim()).filter(Boolean)
+      : [];
 
   return (
     <>
@@ -132,7 +146,6 @@ const ProjectCard = ({
         .pc-img-placeholder {
           width: 100%;
           height: 100%;
-            
           background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(10,25,47,0.9));
           display: flex;
           align-items: center;
@@ -218,6 +231,53 @@ const ProjectCard = ({
           border-color: rgba(0,212,255,0.5);
         }
 
+        /* ── Tech Stack (only addition) ── */
+        .pc-stack {
+          padding: 0 24px 10px;
+          position: relative;
+          z-index: 2;
+        }
+        .pc-stack-label {
+          font-family: 'Space Mono', monospace;
+          font-size: 9px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: rgba(0,212,255,0.4);
+          margin-bottom: 7px;
+        }
+        .pc-stack-pills {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+        .pc-stack-pill {
+          position: relative;
+          font-family: 'IBM Plex Sans', sans-serif;
+          font-size: 11px;
+          font-weight: 500;
+          color: #80cbc4;
+          background: rgba(0,150,136,0.1);
+          border: 1px solid rgba(0,150,136,0.25);
+          border-radius: 5px;
+          padding: 3px 10px 3px 12px;
+          overflow: hidden;
+          transition: background 0.2s, border-color 0.2s, color 0.2s;
+          white-space: nowrap;
+        }
+        .pc-stack-pill::before {
+          content: '';
+          position: absolute; left: 0; top: 0; bottom: 0;
+          width: 2px;
+          background: linear-gradient(to bottom, #00e5ff, #00897b);
+          border-radius: 5px 0 0 5px;
+        }
+        .pc-stack-pill:hover {
+          background: rgba(0,150,136,0.2);
+          border-color: rgba(0,212,255,0.45);
+          color: #e0f7fa;
+        }
+
         /* Actions */
         .pc-actions {
           padding: 12px 24px 22px;
@@ -291,10 +351,10 @@ const ProjectCard = ({
 
           {/* Image */}
           <div className="pc-img-wrap">
-            {image && !imgError ? (
+            {imgSrc && !imgError ? (
               <img
                 className="pc-img"
-                src={image}
+                src={imgSrc}
                 alt={title}
                 onError={() => setImgError(true)}
               />
@@ -319,6 +379,18 @@ const ProjectCard = ({
             </div>
           </div>
 
+          {/* Tech Stack — only new addition */}
+          {stack.length > 0 && (
+            <div className="pc-stack">
+              <div className="pc-stack-label">Tech Stack</div>
+              <div className="pc-stack-pills">
+                {stack.map((tech, i) => (
+                  <span key={i} className="pc-stack-pill">{tech}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="pc-actions">
             {githubLink && (
@@ -332,10 +404,10 @@ const ProjectCard = ({
                 Source
               </a>
             )}
-            {liveDemo && (
+            {demoUrl && (
               <a
                 className="pc-btn"
-                href={liveDemo}
+                href={demoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
               >

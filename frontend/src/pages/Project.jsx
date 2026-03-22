@@ -233,7 +233,7 @@ const Projects = () => {
           </Typography>
         </Box>
 
-        {/* Projects Grid - 2 per row */}
+        {/* Projects Grid — 2 per row (unchanged) */}
         <Grid container spacing={6} justifyContent="center">
           <AnimatePresence>
             {projects.map((project, index) => (
@@ -251,15 +251,14 @@ const Projects = () => {
                 transition={{ delay: index * 0.15, duration: 0.6 }}
                 layout
               >
+                {/* ✅ Only change: correct prop names so techStack shows */}
                 <ProjectCard
                   title={project.title}
                   description={project.description}
-                  image={
-                        project.thumbnail || '/default-project.jpg'
-                      }
+                  thumbnail={project.thumbnail || '/default-project.jpg'}
                   githubLink={project.githubLink}
-                  liveDemo={project.liveDemoLink}
-                  tags={project.tags || []}
+                  liveDemoLink={project.liveDemoLink}
+                  techStack={project.techStack || []}
                 />
               </Grid>
             ))}
