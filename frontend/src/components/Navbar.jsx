@@ -381,7 +381,7 @@ export default function Navbar() {
                 <div className="nb-drawer-header">
                   <Link to="/" className="nb-logo" style={{ fontSize: 15 }}>
                     <span className="nb-logo-bracket">&lt;</span>
-                    Yash<span className="nb-logo-dot">.</span>dev
+                    Yash<span className="nb-logo-dot">.</span>live
                     <span className="nb-logo-bracket">/&gt;</span>
                   </Link>
                   <button

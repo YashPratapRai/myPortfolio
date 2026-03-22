@@ -133,28 +133,34 @@ const ContactPopup = () => {
           pointer-events: none;
         }
 
-        /* Close button */
+        /* ── CLOSE BUTTON (clearly visible) ── */
         .cp-close {
           position: absolute;
-          top: 12px;
-          right: 12px;
-          width: 28px;
-          height: 28px;
-          border: none;
-          background: rgba(100,255,218,0.07);
+          top: 14px;
+          right: 14px;
+          width: 32px;
+          height: 32px;
+          border: 1.5px solid rgba(255, 255, 255, 0.25);
+          background: rgba(255, 255, 255, 0.08);
           border-radius: 50%;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #8892b0;
-          transition: background 0.2s, color 0.2s, transform 0.2s;
-          z-index: 2;
+          color: #ccd6f6;
+          transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.25s;
+          z-index: 10;
+          flex-shrink: 0;
         }
         .cp-close:hover {
-          background: rgba(100,255,218,0.15);
-          color: #64ffda;
-          transform: rotate(90deg);
+          background: rgba(255, 107, 107, 0.18);
+          border-color: rgba(255, 107, 107, 0.6);
+          color: #ff6b6b;
+          transform: rotate(90deg) scale(1.1);
+        }
+        .cp-close svg {
+          display: block;
+          flex-shrink: 0;
         }
 
         /* Status chip */
@@ -273,10 +279,10 @@ const ContactPopup = () => {
             <rect className="cp-border-rect" x="1" y="1" width="298" height="218" rx="16" ry="16" />
           </svg>
 
-          {/* Close */}
+          {/* ── Close button — clearly visible ── */}
           <button className="cp-close" onClick={handleClose} aria-label="Close">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             </svg>
           </button>
 
