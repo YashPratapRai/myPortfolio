@@ -29,6 +29,9 @@ import PsychologyIcon from '@mui/icons-material/Psychology';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ContactPopup from '../components/ContactPopup';
 
+// RAG / Gen AI icon — using a "hub" style icon available in MUI
+import HubIcon from '@mui/icons-material/Hub';
+
 const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 /* ─────────────── tiny helpers ─────────────── */
@@ -60,7 +63,7 @@ const Home = () => {
         setProjects(data.map(p => ({
           ...p,
           thumbnail: p.thumbnail || '/default-project.jpg',
-          })));
+        })));
       } catch (e) {
         console.error(e);
       } finally {
@@ -70,19 +73,20 @@ const Home = () => {
     getProjects();
   }, []);
 
- const handleDownloadCV = () => {
-  // Just open the /view route directly — backend handles everything
-  window.open(`${backendURL}/api/cv/view`, '_blank', 'noopener,noreferrer');
-};
-  /* ── updated skills list ── */
+  const handleDownloadCV = () => {
+    window.open(`${backendURL}/api/cv/view`, '_blank', 'noopener,noreferrer');
+  };
+
+  /* ── skills list ── */
   const skills = [
-    { name: 'Machine Learning',  icon: <PsychologyIcon />,    desc: 'Supervised & unsupervised models, feature engineering' },
-    { name: 'Deep Learning',     icon: <AutoAwesomeIcon />,   desc: 'CNNs, RNNs, Transformers, PyTorch / TensorFlow' },
-    { name: 'Python',            icon: <DataObjectIcon />,    desc: 'NumPy, Pandas, Scikit-learn, FastAPI' },
-    { name: 'JavaScript',        icon: <CodeIcon />,          desc: 'ES2022+, async patterns, React ecosystem' },
-    { name: 'Java / C / C++',    icon: <DeveloperModeIcon />, desc: 'OOP, systems programming, algorithms' },
-    { name: 'SQL / NoSQL',       icon: <StorageIcon />,       desc: 'PostgreSQL, MongoDB, query optimisation' },
-    { name: 'Data Analysis',     icon: <InsightsIcon />,      desc: 'Azure Databricks, Data Factory, Power BI' },
+    { name: 'Machine Learning',      icon: <PsychologyIcon />,    desc: 'Supervised & unsupervised models, feature engineering' },
+    { name: 'Deep Learning',         icon: <AutoAwesomeIcon />,   desc: 'CNNs, RNNs, Transformers, PyTorch / TensorFlow' },
+    { name: 'Generative AI & RAG',   icon: <HubIcon />,           desc: 'LLMs, RAG pipelines, vector search, LangChain, prompt engineering' },
+    { name: 'Python',                icon: <DataObjectIcon />,    desc: 'NumPy, Pandas, Scikit-learn, FastAPI' },
+    { name: 'JavaScript',            icon: <CodeIcon />,          desc: 'ES2022+, async patterns, React ecosystem' },
+    { name: 'Java / C / C++',        icon: <DeveloperModeIcon />, desc: 'OOP, systems programming, algorithms' },
+    { name: 'SQL / NoSQL',           icon: <StorageIcon />,       desc: 'PostgreSQL, MongoDB, query optimisation' },
+    { name: 'Data Analysis',         icon: <InsightsIcon />,      desc: 'Azure Databricks, Data Factory, Power BI' },
   ];
 
   const techStack = [
@@ -234,10 +238,10 @@ const Home = () => {
                   >
                     <TypeAnimation
                       sequence={[
-                        'Built Machine Learning Projects', 1800,
-                        'Built NLP-based Recommendation System',1800,
-                        'Built Deep Learning Models (LSTM)',    1800,
-                        'Exploring Generative AI',    1800,
+                        'Built Machine Learning Projects',      1800,
+                        'Built NLP-based Recommendation System', 1800,
+                        'Built Deep Learning Models (LSTM)',     1800,
+                        'Exploring Generative AI & RAG',         1800,
                       ]}
                       wrapper="span"
                       speed={50}
@@ -283,7 +287,6 @@ const Home = () => {
                     View My Work
                   </Button>
 
-                  {/* Outline CTAs */}
                   {[
                     { label: 'Get In Touch', action: () => navigate('/contact') },
                   ].map(({ label, action }) => (
@@ -395,11 +398,9 @@ const Home = () => {
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                    objectPosition: 'center top', 
+                    objectPosition: 'center top',
                     borderRadius: '6px',
-                    // filter: 'grayscale(100%) contrast(1.05)',
-                    
-                    transition: 'transform 0.4s ease', 
+                    transition: 'transform 0.4s ease',
                     '&:hover': { transform: 'scale(1.02)' },
                   }}
                 />
@@ -502,23 +503,26 @@ const Home = () => {
                             </Typography>
                           </Box>
 
-                          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: 3 }}>
-                            {(project.tags || []).map((tag, i) => (
-                              <Chip
-                                key={i}
-                                label={tag}
-                                size="small"
-                                sx={{
-                                  backgroundColor: 'rgba(100,255,218,0.08)',
-                                  color: accent,
-                                  fontFamily: 'monospace',
-                                  fontSize: '0.7rem',
-                                  border: 'none',
-                                  height: 24,
-                                }}
-                              />
-                            ))}
-                          </Box>
+                          {/* ── Tech Stack chips (from backend) ── */}
+                          {project.techStack && project.techStack.length > 0 && (
+                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
+                              {project.techStack.map((tech, i) => (
+                                <Chip
+                                  key={i}
+                                  label={tech}
+                                  size="small"
+                                  sx={{
+                                    backgroundColor: 'rgba(100,255,218,0.08)',
+                                    color: accent,
+                                    fontFamily: 'monospace',
+                                    fontSize: '0.7rem',
+                                    border: '1px solid rgba(100,255,218,0.2)',
+                                    height: 24,
+                                  }}
+                                />
+                              ))}
+                            </Box>
+                          )}
 
                           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                             {project.githubLink && (
@@ -571,12 +575,10 @@ const Home = () => {
                               width: '100%',
                               height: '100%',
                               objectFit: 'cover',
-                              // filter: 'grayscale(80%) brightness(85%)',
                               transition: 'transform 0.5s ease',
                               '&:hover': { transform: 'scale(1.04)' },
                             }}
                           />
-                          {/* tint overlay */}
                           <Box
                             sx={{
                               position: 'absolute',
@@ -670,6 +672,10 @@ const Home = () => {
                           boxShadow: hoveredSkill === i
                             ? '0 16px 32px -12px rgba(2,12,27,0.8)'
                             : 'none',
+                          // Highlight the GenAI card with a subtle glow
+                          ...(skill.name === 'Generative AI & RAG' && {
+                            background: `linear-gradient(135deg, #112240 80%, rgba(100,255,218,0.05) 100%)`,
+                          }),
                         }}
                       >
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -678,7 +684,9 @@ const Home = () => {
                               width: 36,
                               height: 36,
                               borderRadius: '8px',
-                              backgroundColor: 'rgba(100,255,218,0.1)',
+                              backgroundColor: skill.name === 'Generative AI & RAG'
+                                ? 'rgba(100,255,218,0.15)'
+                                : 'rgba(100,255,218,0.1)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -688,9 +696,32 @@ const Home = () => {
                           >
                             {skill.icon}
                           </Box>
-                          <Typography sx={{ color: white, fontWeight: 600, fontSize: '0.95rem' }}>
-                            {skill.name}
-                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography sx={{ color: white, fontWeight: 600, fontSize: '0.95rem' }}>
+                              {skill.name}
+                            </Typography>
+                            {/* "New" badge for GenAI */}
+                            {skill.name === 'Generative AI & RAG' && (
+                              <Box
+                                component="span"
+                                sx={{
+                                  px: 0.8,
+                                  py: 0.1,
+                                  borderRadius: '4px',
+                                  backgroundColor: 'rgba(100,255,218,0.15)',
+                                  border: '1px solid rgba(100,255,218,0.35)',
+                                  color: accent,
+                                  fontSize: '0.6rem',
+                                  fontFamily: 'monospace',
+                                  fontWeight: 700,
+                                  letterSpacing: '0.05em',
+                                  lineHeight: 1.8,
+                                }}
+                              >
+                                NEW
+                              </Box>
+                            )}
+                          </Box>
                         </Box>
                         <Typography
                           sx={{
@@ -850,9 +881,9 @@ const Home = () => {
 
             <Box sx={{ mt: 7, display: 'flex', justifyContent: 'center', gap: 2 }}>
               {[
-                { icon: <GitHubIcon />,   href: 'https://github.com/YashPratapRai', label: 'GitHub' },
-                { icon: <LinkedInIcon />, href: 'https://www.linkedin.com/in/yash-pratap-rai-00465a284/', label: 'LinkedIn' },
-                { icon: <EmailIcon />,    href: 'mailto:raiyashpratap@gmail.com', label: 'Email' },
+                { icon: <GitHubIcon />,   href: 'https://github.com/YashPratapRai',                          label: 'GitHub'   },
+                { icon: <LinkedInIcon />, href: 'https://www.linkedin.com/in/yash-pratap-rai-00465a284/',    label: 'LinkedIn' },
+                { icon: <EmailIcon />,    href: 'mailto:raiyashpratap@gmail.com',                            label: 'Email'    },
               ].map(({ icon, href, label }) => (
                 <Box
                   key={label}
@@ -883,13 +914,14 @@ const Home = () => {
                 </Box>
               ))}
             </Box>
-            </Box>
-          </Container>
-        </Box>
-        <Chatbot/>
-        <ContactPopup/>
+          </Box>
+        </Container>
       </Box>
-    );
-  };
+
+      <Chatbot />
+      <ContactPopup />
+    </Box>
+  );
+};
 
 export default Home;

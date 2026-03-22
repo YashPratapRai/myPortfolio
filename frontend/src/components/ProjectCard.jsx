@@ -132,6 +132,7 @@ const ProjectCard = ({
         .pc-img-placeholder {
           width: 100%;
           height: 100%;
+            
           background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(10,25,47,0.9));
           display: flex;
           align-items: center;
