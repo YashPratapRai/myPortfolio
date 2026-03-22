@@ -306,12 +306,8 @@ export default function Navbar() {
                     '&:hover': { transform: 'rotate(12deg)' }
                   }}
                 />
-                <span style={{ display: isMobile ? 'none' : 'block' }}>
-                  {/* <span className="nb-logo-bracket">&lt;</span> */}
-                  Yash.live
-                  {/* <span className="nb-logo-dot">.</span>dev */}
-                  {/* <span className="nb-logo-bracket">/&gt;</span> */}
-                </span>
+                <span>Yash.live</span>
+
               </Link>
 
               {/* Desktop nav */}

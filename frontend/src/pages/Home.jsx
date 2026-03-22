@@ -147,6 +147,7 @@ const Home = () => {
           alignItems: 'center',
           position: 'relative',
           overflow: 'hidden',
+          pt: { xs: '70px', sm: '70px', md: 0 },
         }}
       >
         {/* Ambient blobs */}
