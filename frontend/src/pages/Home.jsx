@@ -391,7 +391,7 @@ const Home = () => {
                 />
                 <Box
                   component="img"
-                  src="\ChatGPT Image Mar 22, 2026, 07_55_42 PM.png"
+                  src="\WhatsApp Image 2026-03-25 at 4.33.00 PM.jpeg"
                   alt="Profile"
                   sx={{
                     position: 'relative',
